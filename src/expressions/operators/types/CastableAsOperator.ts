@@ -47,13 +47,13 @@ class CastableAsOperator extends Expression {
 				}
 				return sequenceFactory.singletonTrueSequence();
 			},
+			multiple: () => {
+				return sequenceFactory.singletonFalseSequence();
+			},
 			singleton: () => {
 				return evaluatedExpression.map(value =>
 					canCastToType(value, this._targetType) ? trueBoolean : falseBoolean
 				);
-			},
-			multiple: () => {
-				return sequenceFactory.singletonFalseSequence();
 			}
 		});
 	}

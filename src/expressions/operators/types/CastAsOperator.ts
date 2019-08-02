@@ -47,12 +47,12 @@ class CastAsOperator extends Expression {
 				}
 				return sequenceFactory.empty();
 			},
+			multiple: () => {
+				throw new Error('XPTY0004: Sequence to cast is not singleton or empty.');
+			},
 			singleton: () => {
 				return evaluatedExpression.map(value => castToType(value, this._targetType));
 			},
-			multiple: () => {
-				throw new Error('XPTY0004: Sequence to cast is not singleton or empty.');
-			}
 		});
 	}
 }

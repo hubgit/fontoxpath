@@ -10,15 +10,15 @@ import concatSequences from '../util/concatSequences';
 class SequenceOperator extends PossiblyUpdatingExpression {
 	constructor(expressions: Expression[]) {
 		super(
-			expressions.reduce(function(specificity, selector) {
+			expressions.reduce((specificity, selector) => {
 				return specificity.add(selector.specificity);
 			}, new Specificity({})),
 			expressions,
 			{
-				resultOrder: RESULT_ORDERINGS.UNSORTED,
 				canBeStaticallyEvaluated: expressions.every(
 					selector => selector.canBeStaticallyEvaluated
-				)
+				),
+				resultOrder: RESULT_ORDERINGS.UNSORTED
 			}
 		);
 	}

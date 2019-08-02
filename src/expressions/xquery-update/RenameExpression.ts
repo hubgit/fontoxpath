@@ -6,7 +6,7 @@ import UpdatingExpression from './UpdatingExpression';
 import { rename } from './pulPrimitives';
 import { mergeUpdates } from './pulRoutines';
 
-import isSubTypeOf from '../dataTypes/isSubtypeOf';
+import isSubtypeOf from '../dataTypes/isSubtypeOf';
 import QName from '../dataTypes/valueTypes/QName';
 import { IAsyncIterator, IterationHint, ready } from '../util/iterators';
 import { evaluateNCNameExpression, evaluateQNameExpression } from '../xquery/nameExpression';
@@ -31,9 +31,9 @@ function evaluateTarget(targetXdmValue) {
 		throw errXUTY0012();
 	}
 	if (
-		!isSubTypeOf(targetXdmValue[0].type, 'element()') &&
-		!isSubTypeOf(targetXdmValue[0].type, 'attribute()') &&
-		!isSubTypeOf(targetXdmValue[0].type, 'processing-instruction()')
+		!isSubtypeOf(targetXdmValue[0].type, 'element()') &&
+		!isSubtypeOf(targetXdmValue[0].type, 'attribute()') &&
+		!isSubtypeOf(targetXdmValue[0].type, 'processing-instruction()')
 	) {
 		throw errXUTY0012();
 	}
@@ -143,12 +143,12 @@ class RenameExpression extends UpdatingExpression {
 
 				// The result of the rename expression is an empty XDM instance and a pending update list constructed by merging the pending update lists returned by the NewNameExpr and TargetExpr with the following update primitives using upd:mergeUpdates: upd:rename($target, $QName).
 				return ready({
-					xdmValue: [],
 					pendingUpdateList: mergeUpdates(
 						[rename(target.value, qName)],
 						tv.value.pendingUpdateList,
 						nnv.value.pendingUpdateList
-					)
+					),
+					xdmValue: []
 				});
 			}
 		};

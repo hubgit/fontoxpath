@@ -56,20 +56,8 @@ class Compare extends Expression {
 		);
 
 		return firstSequence.switchCases({
-			empty: () => {
-				if (this._compare === 'valueCompare' || this._compare === 'nodeCompare') {
-					return sequenceFactory.empty();
-				}
-				return sequenceFactory.singletonFalseSequence();
-			},
 			default: () =>
 				secondSequence.switchCases({
-					empty: () => {
-						if (this._compare === 'valueCompare' || this._compare === 'nodeCompare') {
-							return sequenceFactory.empty();
-						}
-						return sequenceFactory.singletonFalseSequence();
-					},
 					default: () => {
 						if (this._compare === 'nodeCompare') {
 							return nodeCompare(
@@ -85,8 +73,18 @@ class Compare extends Expression {
 
 						if (this._compare === 'valueCompare') {
 							return firstAtomizedSequence.switchCases({
+								default: () => {
+									throw new Error(
+										'XPTY0004: Sequences to compare are not singleton.'
+									);
+								},
 								singleton: () =>
 									secondAtomizedSequence.switchCases({
+										default: () => {
+											throw new Error(
+												'XPTY0004: Sequences to compare are not singleton.'
+											);
+										},
 										singleton: () =>
 											firstAtomizedSequence.mapAll(([onlyFirstValue]) =>
 												secondAtomizedSequence.mapAll(([onlySecondValue]) =>
@@ -99,18 +97,8 @@ class Compare extends Expression {
 														? sequenceFactory.singletonTrueSequence()
 														: sequenceFactory.singletonFalseSequence()
 												)
-											),
-										default: () => {
-											throw new Error(
-												'XPTY0004: Sequences to compare are not singleton.'
-											);
-										}
-									}),
-								default: () => {
-									throw new Error(
-										'XPTY0004: Sequences to compare are not singleton.'
-									);
-								}
+											)
+									})
 							});
 						}
 						// Only generalCompare left
@@ -120,8 +108,20 @@ class Compare extends Expression {
 							secondAtomizedSequence,
 							dynamicContext
 						);
+					},
+					empty: () => {
+						if (this._compare === 'valueCompare' || this._compare === 'nodeCompare') {
+							return sequenceFactory.empty();
+						}
+						return sequenceFactory.singletonFalseSequence();
 					}
-				})
+				}),
+			empty: () => {
+				if (this._compare === 'valueCompare' || this._compare === 'nodeCompare') {
+					return sequenceFactory.empty();
+				}
+				return sequenceFactory.singletonFalseSequence();
+			}
 		});
 	}
 }

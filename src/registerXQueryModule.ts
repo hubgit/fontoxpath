@@ -17,8 +17,8 @@ export default function registerXQueryModule(
 	options: { debug: boolean } = { debug: false }
 ): string {
 	const parsedModule = parseExpression(moduleString, {
-		debug: options['debug'],
-		allowXQuery: true
+		allowXQuery: true,
+		debug: options['debug']
 	});
 
 	const libraryModule = astHelper.getFirstChild(parsedModule, 'libraryModule');

@@ -29,7 +29,7 @@ function adaptXPathValueToJavascriptValue(
 
 		case '*':
 		case '+':
-			return valueSequence.getAllValues().map(function(value) {
+			return valueSequence.getAllValues().map(value => {
 				if (isSubtypeOf(value.type, 'attribute()')) {
 					throw new Error('Cannot pass attribute nodes to custom functions');
 				}
@@ -87,17 +87,17 @@ export default function registerCustomXPathFunction(
 ): void {
 	const { namespaceURI, localName } = splitFunctionName(name);
 
-	const callFunction = function(
+	const callFunction = (
 		_dynamicContext: DynamicContext,
 		executionParameters: ExecutionParameters,
 		_staticContext: any
-	) {
+	) => {
 		// Make arguments a read array instead of a array-like object
 		const args = Array.from(arguments);
 
 		args.splice(0, 3);
 
-		const newArguments = args.map(function(argument, index) {
+		const newArguments = args.map((argument, index) => {
 			return adaptXPathValueToJavascriptValue(argument, signature[index]);
 		});
 

@@ -58,11 +58,11 @@ export function getAlternativesAsStringFor(functionName) {
 			.map(alternativeName => {
 				// Remove the namespace uri part of the cache key
 				return {
-					name: alternativeName,
 					distance: computeLevenshteinDistance(
 						functionName,
 						alternativeName.slice(alternativeName.lastIndexOf(':') + 1)
-					)
+					),
+					name: alternativeName
 				};
 			})
 			.sort((a, b) => a.distance - b.distance)
@@ -96,12 +96,21 @@ export function getAlternativesAsStringFor(functionName) {
 						.map(argumentType => argumentType.type + argumentType.occurrence)
 						.join(', ')})"`
 			)
-			.reduce((accumulator, functionName, index, array) => {
-				if (index === 0) {
-					return accumulator + functionName;
-				}
-				return (accumulator += (index !== array.length - 1 ? ', ' : ' or ') + functionName);
-			}, 'Did you mean ') + '?'
+			.reduce(
+				(
+					accumulator: string,
+					alternativeFunctionName: string,
+					index: number,
+					array: string[]
+				): string => {
+					if (index === 0) {
+						return accumulator + alternativeFunctionName;
+					}
+					return (accumulator +=
+						(index !== array.length - 1 ? ', ' : ' or ') + functionName);
+				},
+				'Did you mean '
+			) + '?'
 	);
 }
 
@@ -132,11 +141,11 @@ export function getFunctionByArity(
 	}
 
 	return {
-		namespaceURI: functionNamespaceURI,
-		localName: functionLocalName,
-		callFunction: matchingFunction.callFunction,
 		argumentTypes: matchingFunction.argumentTypes,
 		arity,
+		callFunction: matchingFunction.callFunction,
+		localName: functionLocalName,
+		namespaceURI: functionNamespaceURI,
 		returnType: matchingFunction.returnType
 	};
 }
@@ -145,8 +154,8 @@ function splitType(type: string): TypeDeclaration {
 	// argumentType is something like 'xs:string?' or 'map(*)'
 	const parts = type.match(/^(.*[^+?*])([+*?])?$/);
 	return {
-		type: parts[1],
-		occurrence: (parts[2] as '?' | '+' | '*' | '') || null
+		occurrence: (parts[2] as '?' | '+' | '*' | '') || null,
+		type: parts[1]
 	};
 }
 
@@ -156,14 +165,14 @@ export function registerFunction(namespaceURI, localName, argumentTypes, returnT
 	}
 
 	registeredFunctionsByName[namespaceURI + ':' + localName].push({
-		localName,
-		namespaceURI,
 		argumentTypes: argumentTypes.map(argumentType =>
 			argumentType === '...' ? REST_ARGUMENT_INSTANCE : splitType(argumentType)
 		),
 		arity: argumentTypes.length,
-		returnType: splitType(returnType),
-		callFunction
+		callFunction,
+		localName,
+		namespaceURI,
+		returnType: splitType(returnType)
 	});
 }
 

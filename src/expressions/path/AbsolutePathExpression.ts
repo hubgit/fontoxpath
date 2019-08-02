@@ -11,10 +11,10 @@ class AbsolutePathExpression extends Expression {
 			relativePathExpression ? relativePathExpression.specificity : new Specificity({}),
 			relativePathExpression ? [relativePathExpression] : [],
 			{
-				resultOrder: RESULT_ORDERINGS.SORTED,
-				subtree: false,
+				canBeStaticallyEvaluated: false,
 				peer: false,
-				canBeStaticallyEvaluated: false
+				resultOrder: RESULT_ORDERINGS.SORTED,
+				subtree: false
 			}
 		);
 

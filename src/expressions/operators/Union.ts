@@ -13,13 +13,13 @@ class Union extends Expression {
 	private _subExpressions: Expression[];
 
 	constructor(expressions: Expression[]) {
-		const maxSpecificity = expressions.reduce((maxSpecificity, expression) => {
+		const specificity = expressions.reduce((maxSpecificity, expression) => {
 			if (maxSpecificity.compareTo(expression.specificity) > 0) {
 				return maxSpecificity;
 			}
 			return expression.specificity;
 		}, new Specificity({}));
-		super(maxSpecificity, expressions, {
+		super(specificity, expressions, {
 			canBeStaticallyEvaluated: expressions.every(
 				expression => expression.canBeStaticallyEvaluated
 			)

@@ -11,14 +11,14 @@ class OrOperator extends Expression {
 	private _subExpressions: Expression[];
 
 	constructor(expressions: Expression[]) {
-		const maxSpecificity = expressions.reduce((maxSpecificity, selector) => {
+		const specificity = expressions.reduce((maxSpecificity, selector) => {
 			if (maxSpecificity.compareTo(selector.specificity) > 0) {
 				return maxSpecificity;
 			}
 			return selector.specificity;
 		}, new Specificity({}));
 
-		super(maxSpecificity, expressions, {
+		super(specificity, expressions, {
 			canBeStaticallyEvaluated: expressions.every(
 				selector => selector.canBeStaticallyEvaluated
 			)

@@ -11,12 +11,14 @@ import { errXQDY0041, errXQDY0074 } from './XQueryErrors';
 
 const nameExprErr = () => errXPTY0004('a single xs:string or xs:untypedAtomic');
 
-const NCNameStartChar = /([A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]|[\uD800-\uDB7F][\uDC00-\uDFFF])/;
-const NCNameChar = new RegExp(`(${NCNameStartChar.source}|[-.0-9\xB7\u0300-\u036F\u203F\u2040])`);
-const NCName = new RegExp(`${NCNameStartChar.source}${NCNameChar.source}*`, 'g');
+const NCNAME_START_CHAR = /([A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]|[\uD800-\uDB7F][\uDC00-\uDFFF])/;
+const NCNAME_CHAR = new RegExp(
+	`(${NCNAME_START_CHAR.source}|[-.0-9\xB7\u0300-\u036F\u203F\u2040])`
+);
+const NCNAME = new RegExp(`${NCNAME_START_CHAR.source}${NCNAME_CHAR.source}*`, 'g');
 
 const isValidNCName = name => {
-	const matches = name.match(NCName);
+	const matches = name.match(NCNAME);
 	return matches ? matches.length === 1 : false;
 };
 
@@ -26,6 +28,9 @@ export function evaluateNCNameExpression(
 ): IAsyncIterator<Value> {
 	const name = nameSequence.atomize(executionParameters);
 	return name.switchCases({
+		default: () => {
+			throw nameExprErr();
+		},
 		singleton: seq => {
 			const nameValue = seq.first();
 			if (
@@ -38,9 +43,6 @@ export function evaluateNCNameExpression(
 				return sequenceFactory.singleton(nameValue);
 			}
 			throw nameExprErr();
-		},
-		default: () => {
-			throw nameExprErr();
 		}
 	}).value;
 }
@@ -52,6 +54,9 @@ export function evaluateQNameExpression(
 ): IAsyncIterator<Value> {
 	const name = nameSequence.atomize(executionParameters);
 	return name.switchCases({
+		default: () => {
+			throw nameExprErr();
+		},
 		singleton: seq => {
 			const nameValue = seq.first();
 			if (isSubtypeOf(nameValue.type, 'xs:QName')) {
@@ -82,9 +87,6 @@ export function evaluateQNameExpression(
 					value: new QName(prefix, namespaceURI, localName)
 				});
 			}
-			throw nameExprErr();
-		},
-		default: () => {
 			throw nameExprErr();
 		}
 	}).value;

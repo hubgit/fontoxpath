@@ -8,7 +8,7 @@ import {
 import IWrappingDomFacade from '../../domFacade/IWrappingDomFacade';
 import INodesFactory from '../../nodesFactory/INodesFactory';
 import createNodeValue from '../dataTypes/createNodeValue';
-import isSubTypeOf from '../dataTypes/isSubtypeOf';
+import isSubtypeOf from '../dataTypes/isSubtypeOf';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import QName from '../dataTypes/valueTypes/QName';
 import DynamicContext from '../DynamicContext';
@@ -156,7 +156,7 @@ class TransformExpression extends UpdatingExpression {
 						// The result of evaluating the source expression must be a single node [err:XUTY0013]. Let $node be this single node.
 						if (
 							sv.value.xdmValue.length !== 1 ||
-							!isSubTypeOf(sv.value.xdmValue[0].type, 'node()')
+							!isSubtypeOf(sv.value.xdmValue[0].type, 'node()')
 						) {
 							throw errXUTY0013();
 						}
@@ -222,8 +222,8 @@ class TransformExpression extends UpdatingExpression {
 
 				//  The result of the copy modify expression is the XDM instance returned, as well as a pending update list constructed by merging the pending update lists returned by any of the copy modify expression's copy or return clause operand expressions using upd:mergeUpdates. During evaluation of the return clause, changes applied to copied nodes by the preceding step are visible.
 				return ready({
-					xdmValue: rv.value.xdmValue,
-					pendingUpdateList: mergeUpdates(rv.value.pendingUpdateList, ...toMergePuls)
+					pendingUpdateList: mergeUpdates(rv.value.pendingUpdateList, ...toMergePuls),
+					xdmValue: rv.value.xdmValue
 				});
 			}
 		};

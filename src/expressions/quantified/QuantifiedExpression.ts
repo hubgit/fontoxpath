@@ -19,7 +19,7 @@ class QuantifiedExpression extends Expression {
 		const inClauseNames = inClauses.map(inClause => inClause.name);
 
 		const specificity = inClauseExpressions.reduce(
-			(specificity, inClause) => specificity.add(inClause.specificity),
+			(totalSpecificity, inClause) => totalSpecificity.add(inClause.specificity),
 			satisfiesExpr.specificity
 		);
 		super(specificity, inClauseExpressions.concat(satisfiesExpr), {

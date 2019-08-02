@@ -13,7 +13,7 @@ import {
 } from './pulPrimitives';
 import { mergeUpdates } from './pulRoutines';
 
-import isSubTypeOf from '../dataTypes/isSubtypeOf';
+import isSubtypeOf from '../dataTypes/isSubtypeOf';
 import { IAsyncIterator, IterationHint, ready } from '../util/iterators';
 import parseContent from '../xquery/ElementConstructorContent';
 
@@ -183,8 +183,8 @@ class InsertExpression extends UpdatingExpression {
 							throw errXUTY0005();
 						}
 						if (
-							!isSubTypeOf(tv.value.xdmValue[0].type, 'element()') &&
-							!isSubTypeOf(tv.value.xdmValue[0].type, 'document()')
+							!isSubtypeOf(tv.value.xdmValue[0].type, 'element()') &&
+							!isSubtypeOf(tv.value.xdmValue[0].type, 'document()')
 						) {
 							throw errXUTY0005();
 						}
@@ -194,10 +194,10 @@ class InsertExpression extends UpdatingExpression {
 							throw errXUTY0006();
 						}
 						if (
-							!isSubTypeOf(tv.value.xdmValue[0].type, 'element()') &&
-							!isSubTypeOf(tv.value.xdmValue[0].type, 'text()') &&
-							!isSubTypeOf(tv.value.xdmValue[0].type, 'comment()') &&
-							!isSubTypeOf(tv.value.xdmValue[0].type, 'processing-instruction()')
+							!isSubtypeOf(tv.value.xdmValue[0].type, 'element()') &&
+							!isSubtypeOf(tv.value.xdmValue[0].type, 'text()') &&
+							!isSubtypeOf(tv.value.xdmValue[0].type, 'comment()') &&
+							!isSubtypeOf(tv.value.xdmValue[0].type, 'processing-instruction()')
 						) {
 							throw errXUTY0006();
 						}
@@ -220,7 +220,7 @@ class InsertExpression extends UpdatingExpression {
 				// 3. If $alist is not empty and any form of into is specified, the following checks are performed:
 				if (alist.length && this._targetChoice >= TargetChoice.INSERT_INTO) {
 					// a. $target must be an element node [err:XUTY0022].
-					if (!isSubTypeOf(target.type, 'element()')) {
+					if (!isSubtypeOf(target.type, 'element()')) {
 						throw errXUTY0022();
 					}
 
@@ -277,7 +277,6 @@ class InsertExpression extends UpdatingExpression {
 
 				// 5. The result of the insert expression is an empty XDM instance and a pending update list constructed by merging the pending update lists returned by the SourceExpr and TargetExpr with the following update primitives using upd:mergeUpdates:
 				return ready({
-					xdmValue: [],
 					pendingUpdateList: mergeUpdates(
 						buildPendingUpdates(
 							this._targetChoice,
@@ -288,7 +287,8 @@ class InsertExpression extends UpdatingExpression {
 						),
 						sourceUpdates,
 						targetUpdates
-					)
+					),
+					xdmValue: []
 				});
 			}
 		};
