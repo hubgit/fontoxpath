@@ -129,32 +129,31 @@ function doExpressionsBuild() {
 			],
 			warning_level: 'VERBOSE',
 			compilation_level: 'ADVANCED',
-			externs: [],
 			module_resolution: 'NODE',
 			dependency_mode: 'STRICT',
 			output_wrapper: `
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		// AMD
-		define([], factory);
+		define(['xspattern'], factory);
 	} else if (typeof exports === 'object') {
 		// Node, CommonJS-like
-		module.exports = factory();
+		module.exports = factory(require('xspattern'));
 	} else {
 		// Browser globals (root is window)
-		root.fontoxpath = factory();
+		root.fontoxpath = factory(root.xspattern);
 	}
-})(this, function () {
+})(this, function (xspattern) {
 	var window = {};
+	window.xspattern = xspattern;
 	var VERSION='${require('./package.json').version}';
 	%output%
 	return window;
 });
-//# sourceMappingURL=./fontoxpath.js.map
 `,
 			js_output_file: './dist/fontoxpath.js',
 			entry_point: `./${TEMP_BUILD_DIR}/index.js`,
-			js: `"${TEMP_BUILD_DIR}/**.js"`
+			js: [`"${TEMP_BUILD_DIR}/**.js"`]
 		}).run((exitCode, stdOut, stdErr) => {
 			console.log('done');
 			if (exitCode !== 0) {
@@ -169,7 +168,7 @@ function doExpressionsBuild() {
 	});
 }
 
-var chain = Promise.resolve();
+let chain = Promise.resolve();
 if (!skipParserBuild) {
 	chain = chain.then(doPegJsBuild);
 }

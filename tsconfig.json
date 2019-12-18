@@ -8,7 +8,10 @@
 		"inlineSourceMap": true,
 		"declaration": true,
 		"strict": false,
-		"inlineSources": true
+		"inlineSources": true,
+		"paths": {
+			"xspattern": ["xspattern.ts"]
+		}
 	},
 	"include": ["./src/**/*"]
 }

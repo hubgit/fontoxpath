@@ -1,3 +1,5 @@
+import { compile } from 'xspattern';
+
 import atomize from '../dataTypes/atomize';
 import castToType from '../dataTypes/castToType';
 import createAtomicValue from '../dataTypes/createAtomicValue';
@@ -509,6 +511,29 @@ const fnCodepointEqual: FunctionDefinitionType = (
 	});
 };
 
+const cachedPatterns = new Map();
+
+const fnMatches: FunctionDefinitionType = (
+	_dynamicContext,
+	_executionParameters,
+	_staticContext,
+	inputSequence: ISequence,
+	patternSequence: ISequence
+) => {
+	return zipSingleton([inputSequence, patternSequence], ([inputValue, patternValue]) => {
+		const input = inputValue ? inputValue.value : '';
+		const pattern = patternValue.value;
+		let compiledPattern = cachedPatterns.get(pattern);
+		if (!compiledPattern) {
+			compiledPattern = compile(patternValue.value);
+			cachedPatterns.set(pattern, compiledPattern);
+		}
+		return compiledPattern(input)
+			? sequenceFactory.singletonTrueSequence()
+			: sequenceFactory.singletonFalseSequence();
+	});
+};
+
 export default {
 	declarations: [
 		{
@@ -792,6 +817,14 @@ export default {
 			localName: 'codepoint-equal',
 			namespaceURI: FUNCTIONS_NAMESPACE_URI,
 			returnType: 'xs:boolean?'
+		},
+
+		{
+			argumentTypes: ['xs:string?', 'xs:string'],
+			callFunction: fnMatches,
+			localName: 'matches',
+			namespaceURI: FUNCTIONS_NAMESPACE_URI,
+			returnType: 'xs:boolean'
 		}
 	],
 	functions: {

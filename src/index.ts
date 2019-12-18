@@ -1,4 +1,5 @@
 import IDocumentWriter from './documentWriter/IDocumentWriter';
+
 import ExternalDomFacade from './domFacade/ExternalDomFacade';
 import IDomFacade from './domFacade/IDomFacade';
 import evaluateUpdatingExpression, { UpdatingOptions } from './evaluateUpdatingExpression';
