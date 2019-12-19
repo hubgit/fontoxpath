@@ -525,8 +525,12 @@ const fnMatches: FunctionDefinitionType = (
 		const pattern = patternValue.value;
 		let compiledPattern = cachedPatterns.get(pattern);
 		if (!compiledPattern) {
-			compiledPattern = compile(patternValue.value);
-			cachedPatterns.set(pattern, compiledPattern);
+			try {
+				compiledPattern = compile(patternValue.value, { language: 'xpath' });
+				cachedPatterns.set(pattern, compiledPattern);
+			} catch (error) {
+				throw new Error('FORX0002: ' + error);
+			}
 		}
 		return compiledPattern(input)
 			? sequenceFactory.singletonTrueSequence()
