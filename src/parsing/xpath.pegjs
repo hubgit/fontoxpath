@@ -767,30 +767,34 @@ PostfixExprWithStep
    / (_ lookup:Lookup {return lookup})
    )* {
 var toWrap = expr;
-
 var predicates = [];
+
 postfixExpr.forEach(function (postFix) {
   if (postFix[0] === "predicate") {
     predicates.push(postFix[1]);
-  }
-  else if (postFix[0] === "argumentList") {
+  } else if (postFix[0] === "argumentList") {
     if (predicates.length) {
       // Wrap in pathExpr to fit the predicates
       toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]];
       predicates = [];
     }
     toWrap = ["dynamicFunctionInvocationExpr", ["functionItem", toWrap]].concat(postFix[1].length ? [["arguments"].concat(postFix[1])] : []);
+  } else if (postFix[0] === "lookup") {
+	  if (predicates.length) {
+      // Wrap in pathExpr to fit the predicates
+      toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]];
+      predicates = [];
+    }
+	  toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap], postFix]]];
   }
 });
 
-return predicates.length ?
-  [["filterExpr", toWrap], ["predicates"].concat(predicates)] :
-  [["filterExpr", toWrap]];
+return [["filterExpr", toWrap]].concat(predicates.length ? [["predicates"].concat(predicates)] : []);
 }
 
 // Expression is not in a step expression, i.e. can not have predicates and does not need filterExpr wrapper
 PostfixExprWithoutStep
- = expr:PrimaryExpr !(_ Predicate / _ ArgumentList) {return expr}
+ = expr:PrimaryExpr !(_ Predicate / _ ArgumentList / _ Lookup) {return expr}
 
 
 // === end of changes ===
@@ -864,7 +868,7 @@ Predicate
 
 // 125
 Lookup
- = "?" _ KeySpecifier
+ = "?" _ keySpecifier:KeySpecifier {return keySpecifier === "*" ? ["lookup", ["star"]] : typeof keySpecifier === "string" ? ["lookup", ["NCName", keySpecifier]] : ["lookup", keySpecifier]}
 
 KeySpecifier
  = NCName / IntegerLiteral / ParenthesizedExpr / "*"
@@ -886,7 +890,7 @@ PrimaryExpr
  / MapConstructor
  / ArrayConstructor
 // / StringConstructor
-// / UnaryLookup
+ / UnaryLookup
 
 // 129
 Literal
@@ -1146,6 +1150,17 @@ SquareArrayConstructor
 // 176
 CurlyArrayConstructor
  = "array" _ e:EnclosedExpr {return ["curlyArray"].concat(e ? [["arrayElem", e]] : [])}
+
+// 181
+UnaryLookup
+ = "?" _ keySpecifier:KeySpecifier {
+	 return keySpecifier === "*" ?
+	 	["unaryLookup", ["star"]] :
+		typeof keySpecifier === "string" ?
+			["unaryLookup", ["NCName", keySpecifier]] :
+			["unaryLookup", keySpecifier]
+	 }
+
 
 // 182
 SingleType

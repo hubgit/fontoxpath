@@ -40,6 +40,8 @@ import AbsolutePathExpression from '../expressions/path/AbsolutePathExpression';
 import ContextItemExpression from '../expressions/path/ContextItemExpression';
 import PathExpression from '../expressions/path/PathExpression';
 import Filter from '../expressions/postfix/Filter';
+import Lookup from '../expressions/postfix/Lookup';
+import UnaryLookup from '../expressions/postfix/UnaryLookup';
 import QuantifiedExpression from '../expressions/quantified/QuantifiedExpression';
 import KindTest from '../expressions/tests/KindTest';
 import NameTest from '../expressions/tests/NameTest';
@@ -187,6 +189,9 @@ function compile(ast: IAST, compilationOptions: CompilationOptions): Expression 
 
 		case 'arrayConstructor':
 			return arrayConstructor(ast, compilationOptions);
+
+		case 'unaryLookup':
+			return new UnaryLookup(compileLookup(ast, compilationOptions));
 
 		case 'typeswitchExpr':
 			return typeswitchExpr(ast, compilationOptions);
@@ -355,6 +360,21 @@ function binaryOperator(ast, compilationOptions) {
 	);
 
 	return new BinaryOperator(kind, a, b);
+}
+
+function compileLookup(ast, compilationOptions): string | number | Expression {
+	const keyExpression = astHelper.getFirstChild(ast, '*');
+	const lookupKind = keyExpression[0] as 'integerConstantExpr'|'parenthesizedExpression' | 'NCName' | 'star';
+	switch (lookupKind) {
+		case 'integerConstantExpr':
+			return parseInt(astHelper.getTextContent(astHelper.getFirstChild(keyExpression, '*')), 10);
+		case 'NCName':
+			return astHelper.getTextContent(keyExpression);
+		case 'star':
+			return '*';
+		default:
+			return compile(keyExpression, disallowUpdating(compilationOptions));
+	}
 }
 
 function castAs(ast, compilationOptions) {
@@ -714,6 +734,7 @@ function pathExpr(ast, compilationOptions) {
 		const axis = astHelper.getFirstChild(step, 'xpathAxis');
 
 		const predicates = astHelper.getFirstChild(step, 'predicates');
+		const lookups = astHelper.getChildren(step, 'lookup');
 		let stepExpression;
 
 		if (axis) {
@@ -785,16 +806,27 @@ function pathExpr(ast, compilationOptions) {
 			stepExpression = compile(filterExpr, disallowUpdating(compilationOptions));
 		}
 
-		if (!predicates) {
-			return stepExpression;
-		}
-		return astHelper
+		if (predicates) {
+			return astHelper
 			.getChildren(predicates, '*')
 			.reduce(
 				(innerStep, predicate) =>
 					new Filter(innerStep, compile(predicate, disallowUpdating(compilationOptions))),
 				stepExpression
 			);
+		}
+
+		if (lookups) {
+			return lookups
+			.reduce(
+				(innerStep, lookup) => {
+					return new Lookup(innerStep, compileLookup(lookup, compilationOptions));
+				},
+				stepExpression
+			);
+		}
+
+		return stepExpression;
 	});
 
 	const isAbsolute = astHelper.getFirstChild(ast, 'rootExpr');
