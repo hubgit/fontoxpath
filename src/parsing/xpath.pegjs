@@ -782,12 +782,20 @@ postfixExpr.forEach(function (postFix) {
   } else if (postFix[0] === "lookup") {
 	  if (predicates.length) {
       // Wrap in pathExpr to fit the predicates
-      toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]];
+      toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]]];
       predicates = [];
     }
-	  toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap], postFix]]];
+	  toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], postFix]];
   }
 });
+
+console.log('expr');
+console.log(expr);
+console.log('postfix');
+console.log(postfixExpr);
+console.log('toWrap');
+console.log(toWrap);
+console.log('---------------------------------');
 
 return [["filterExpr", toWrap]].concat(predicates.length ? [["predicates"].concat(predicates)] : []);
 }
