@@ -11,7 +11,7 @@ const { spawn } = require('child_process');
 const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor');
 
 const skipParserBuild = process.env.npm_config_skip_parser;
-const skipClosureBuild = process.env.npm_config_skip_closure;
+const skipClosureBuild = true;//  process.env.npm_config_skip_closure;
 const doDebugBuild = process.env.npm_config_debug_closure;
 const reportUnknownTypes = process.env.npm_config_report_unknown_types;
 

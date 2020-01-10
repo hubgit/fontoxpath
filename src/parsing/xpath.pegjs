@@ -767,37 +767,54 @@ PostfixExprWithStep
    / (_ lookup:Lookup {return lookup})
    )* {
 var toWrap = expr;
-var predicates = [];
 
+// console.log(JSON.stringify(expr));
+// console.log('');
+// console.log(JSON.stringify(postfixExpr));
+// console.log('-----');
+
+var lookups = [];
+var predicates = [];
 postfixExpr.forEach(function (postFix) {
   if (postFix[0] === "predicate") {
+    // Double wrap sequenceExpr because the XQueryX tests like it
+    if(toWrap[0] === "sequenceExpr" && toWrap.length > 2) {
+      toWrap = ["sequenceExpr", toWrap];
+    }
     predicates.push(postFix[1]);
-  } else if (postFix[0] === "argumentList") {
+  }
+  else if (postFix[0] === "argumentList") {
     if (predicates.length) {
       // Wrap in pathExpr to fit the predicates
       toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]];
       predicates = [];
     }
+    if (lookups.length) {
+      // Wrap in pathExpr to fit the lookups
+      toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap]].concat(lookups)]];
+      lookups = [];
+    }
     toWrap = ["dynamicFunctionInvocationExpr", ["functionItem", toWrap]].concat(postFix[1].length ? [["arguments"].concat(postFix[1])] : []);
   } else if (postFix[0] === "lookup") {
-	  if (predicates.length) {
-      // Wrap in pathExpr to fit the predicates
-      toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]]];
-      predicates = [];
+    // Double wrap sequenceExpr because the XQueryX tests like it
+    if(toWrap[0] === "sequenceExpr" && toWrap.length > 2) {
+      toWrap = ["sequenceExpr", toWrap];
     }
-	  toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], postFix]];
+    lookups.push(postFix);
   }
 });
 
-console.log('expr');
-console.log(expr);
-console.log('postfix');
-console.log(postfixExpr);
-console.log('toWrap');
-console.log(toWrap);
-console.log('---------------------------------');
-
-return [["filterExpr", toWrap]].concat(predicates.length ? [["predicates"].concat(predicates)] : []);
+if (lookups.length) {
+  if (predicates.length) {
+    return [["filterExpr", toWrap]].concat(lookups).concat([["predicate"].concat(predicates)]);
+  } else {
+    return [["filterExpr", toWrap]].concat(lookups);
+  }
+} else if (predicates.length) {
+  return [["filterExpr", toWrap], ["predicates"].concat(predicates)];
+} else {
+  return [["filterExpr", toWrap]];
+}
 }
 
 // Expression is not in a step expression, i.e. can not have predicates and does not need filterExpr wrapper
@@ -934,8 +951,8 @@ FunctionCall
 
 // 138
 Argument
- = ArgumentPlaceholder
- / ExprSingle
+ = ExprSingle
+ /ArgumentPlaceholder
 
 // 139
 ArgumentPlaceholder
