@@ -133,7 +133,8 @@ export default function buildEvaluationContext(
 		wrappedDomFacade,
 		nodesFactory,
 		documentWriter,
-		externalOptions['currentContext']
+		externalOptions['currentContext'],
+		externalOptions.logOutput
 	);
 
 	return {
