@@ -14,7 +14,7 @@ const parser = peg.generate(parserString); //, { trace: true });
 // const xQuery = `(['a', 'b'], ['c', 'd'])?1`; // Lookup-101
 // const xQuery = `[['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b']]?*?*`; // Lookup-122
 // const xQuery = `[floor#1, ceiling#1, round#1, abs#1]?2(1.3)`; // Lookup-150
-const xQuery = `map{'f':floor#1, 'c':ceiling#1, 'r':round#1, 'a':abs#1}[1]?("c")(1.3)`; // Lookup-153
+// const xQuery = `map{'f':floor#1, 'c':ceiling#1, 'r':round#1, 'a':abs#1}[1]?("c")(1.3)`; // Lookup-153
 
 // const xQuery = `(['a', 'b'], ['c', 'd'])[?1 eq 'c']`; // UnaryLookup-001
 // const xQuery = `let $d := function($x) {$x + ?2} return $d(12)`; // UnaryLookup-011
@@ -22,6 +22,7 @@ const xQuery = `map{'f':floor#1, 'c':ceiling#1, 'r':round#1, 'a':abs#1}[1]?("c")
 // const xQuery = `(['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b'])[contains(?1, ?,
 // 'http://www.w3.org/2005/xpath-functions/collation/codepoint')('a')]`; // UnaryLookup-016
 // const xQuery = `[['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b']]?*[?1 = 'a']`; // UnaryLookup-022
+const xQuery = `(map{1.1:1, 2.2:2, 3.3:3},  map{1.1:2, 2.2:3, 3.3:4})[?(2.2) = 3]?(3.3)`; // UnaryLookup-048
 
 /**
  * Transform the given JsonML fragment into the corresponding DOM structure, using the given document to

@@ -768,11 +768,6 @@ PostfixExprWithStep
    )* {
 var toWrap = expr;
 
-// console.log(JSON.stringify(expr));
-// console.log('');
-// console.log(JSON.stringify(postfixExpr));
-// console.log('-----');
-
 var lookups = [];
 var predicates = [];
 postfixExpr.forEach(function (postFix) {
@@ -785,14 +780,26 @@ postfixExpr.forEach(function (postFix) {
   }
   else if (postFix[0] === "argumentList") {
     if (predicates.length) {
-      // Wrap in pathExpr to fit the predicates
-      toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]];
-      predicates = [];
+      if (predicates.length === 1) {
+        // toWrap = toWrap.concat(["predicate"].concat(predicates));
+        // predicates = [];
+      } else {
+        // Wrap in pathExpr to fit the predicates
+        toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]];
+        predicates = [];
+      }
     }
     if (lookups.length) {
-      // Wrap in pathExpr to fit the lookups
-      toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap]].concat(lookups)]];
-      lookups = [];
+      if (predicates.length === 1) {
+        // Wrap in pathExpr to fit the lookups
+        toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicate"].concat(predicates)].concat(lookups)]];
+        lookups = [];
+        predicates = [];
+      } else {
+        // Wrap in pathExpr to fit the lookups
+        toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap]].concat(lookups)]];
+        lookups = [];
+      }
     }
     toWrap = ["dynamicFunctionInvocationExpr", ["functionItem", toWrap]].concat(postFix[1].length ? [["arguments"].concat(postFix[1])] : []);
   } else if (postFix[0] === "lookup") {
