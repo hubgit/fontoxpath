@@ -1,9 +1,9 @@
-import { DONE_TOKEN, notReady, ready, IAsyncIterator } from './expressions/util/iterators';
+import { DONE_TOKEN, IAsyncIterator, notReady, ready } from './expressions/util/iterators';
 
-import isSubtypeOf from './expressions/dataTypes/isSubtypeOf';
-import Value from './expressions/dataTypes/Value';
 import ArrayValue from './expressions/dataTypes/ArrayValue';
+import isSubtypeOf from './expressions/dataTypes/isSubtypeOf';
 import MapValue from './expressions/dataTypes/MapValue';
+import Value from './expressions/dataTypes/Value';
 
 export function transformMapToObject(map: MapValue): IAsyncIterator<object> {
 	const mapObj = {};
@@ -110,6 +110,8 @@ export default function transformXPathItemToJavascriptObject(value: Value): IAsy
 		};
 	}
 
+	// MAKE IT ACTUAL HERE
+
 	switch (value.type) {
 		case 'xs:date':
 		case 'xs:time':
@@ -121,6 +123,16 @@ export default function transformXPathItemToJavascriptObject(value: Value): IAsy
 		case 'xs:gDay':
 			return {
 				next: () => ready(value.value.toJavaScriptDate())
+			};
+		case 'attribute()':
+		case 'node()':
+		case 'element()':
+		case 'document()':
+		case 'text()':
+		case 'processing-instruction()':
+		case 'comment()':
+			return {
+				next: () => ready(value.value.unwrap())
 			};
 
 		default:

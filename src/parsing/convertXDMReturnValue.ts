@@ -1,3 +1,11 @@
+import {
+	CommentNodeSilhouette,
+	ElementNodeSilhouette,
+	NodeSilhouette,
+	ProcessingInstructionNodeSilhouette,
+	TextNodeSilhouette
+} from '../domClone/Pointer';
+import { NODE_TYPES } from '../domFacade/ConcreteNode';
 import { printAndRethrowError } from '../evaluationUtils/printAndRethrowError';
 import ArrayValue from '../expressions/dataTypes/ArrayValue';
 import atomize from '../expressions/dataTypes/atomize';
@@ -13,6 +21,54 @@ import transformXPathItemToJavascriptObject, {
 	transformMapToObject
 } from '../transformXPathItemToJavascriptObject';
 import { Node } from '../types/Types';
+
+const isNodeSilhouette = node => node.isSilhouette;
+
+function createNewNode(node: NodeSilhouette | Node, executionParameters: ExecutionParameters) {
+	const documentWriter = executionParameters.documentWriter;
+	const nodesFactory = executionParameters.nodesFactory;
+
+	if (isNodeSilhouette(node)) {
+		switch (node.nodeType) {
+			case NODE_TYPES.COMMENT_NODE:
+				const commentNodeSilhouette = node as CommentNodeSilhouette;
+				return nodesFactory.createComment(commentNodeSilhouette.data);
+			case NODE_TYPES.ELEMENT_NODE:
+				const elementNodeSilhouette = node as ElementNodeSilhouette;
+				const element = nodesFactory.createElementNS(
+					elementNodeSilhouette.namespaceURI,
+					elementNodeSilhouette.prefix
+						? elementNodeSilhouette.prefix + ':' + elementNodeSilhouette.localName
+						: elementNodeSilhouette.localName
+				);
+				elementNodeSilhouette.childNodes.forEach(childNode => {
+					const newChildNode = createNewNode(childNode, executionParameters);
+					documentWriter.insertBefore(element, newChildNode, null);
+				});
+				elementNodeSilhouette.attributes.forEach(attribute => {
+					documentWriter.setAttributeNS(
+						element,
+						attribute.namespaceURI,
+						attribute.name,
+						attribute.value
+					);
+				});
+				return element;
+			case NODE_TYPES.PROCESSING_INSTRUCTION_NODE:
+				const piSilhouette = node as ProcessingInstructionNodeSilhouette;
+				return nodesFactory.createProcessingInstruction(
+					piSilhouette.target,
+					piSilhouette.data
+				);
+			case NODE_TYPES.TEXT_NODE:
+				const textNodeSilhouette = node as TextNodeSilhouette;
+				return nodesFactory.createComment(textNodeSilhouette.data);
+		}
+	} else {
+		// we need to set a rule to create clone or use same node.
+		return (node as any).cloneNode(true);
+	}
+}
 
 /**
  * @public
@@ -63,7 +119,7 @@ export default function convertXDMReturnValue<
 			if (!ebv.ready) {
 				throw new Error(`The expression ${expression} can not be resolved synchronously.`);
 			}
-			return ebv.value as IReturnTypes<TNode>[ReturnType.BOOLEAN];
+			return ebv.value;
 		}
 
 		case ReturnType.STRING: {
@@ -120,7 +176,11 @@ export default function convertXDMReturnValue<
 					'Expected XPath ' + expression + ' to resolve to Node. Got ' + first.value.type
 				);
 			}
-			return first.value.value;
+			// over here: unravel pointers. if they point to actual nodes:return them. if they point
+			// to lightweights, really make them, if they point to clones, clone them etc
+
+			const node = first.value.value.node;
+			return createNewNode(node, executionParameters);
 		}
 
 		case ReturnType.NODES: {
@@ -139,7 +199,8 @@ export default function convertXDMReturnValue<
 				);
 			}
 			return allResults.value.map(nodeValue => {
-				return nodeValue.value;
+				const node = nodeValue.value.node;
+				return createNewNode(node, executionParameters);
 			});
 		}
 

@@ -170,6 +170,53 @@ describe('ElementConstructor', () => {
 		);
 	});
 
+	it('correctly handles nested elements', () => {
+		chai.assert.equal(
+			evaluateXPathToFirstNode<slimdom.Element>(
+				`<e>
+					<!-- my comment -->
+					<d attr="v-a-l-u-e">
+						<c>
+							<?PITarget PIContent?>
+							<b>
+								<a>hey text node!</a>
+							</b>
+						</c>
+					</d>
+				</e>`,
+				documentNode,
+				undefined,
+				{},
+				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+			).outerHTML,
+			`<e><!-- my comment --><d attr="v-a-l-u-e"><c><?PITarget PIContent?><b><a>hey text node!</a></b></c></d></e>`
+		);
+	});
+
+	it.only('clones nodes when it is needed', () => {
+		chai.assert.isTrue(
+			evaluateXPathToBoolean(
+				`let $t := xml/title[1]
+				return $t is xml/title[1]`,
+				documentNode,
+				undefined,
+				{},
+				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+			)
+		);
+
+		chai.assert.isFalse(
+			evaluateXPathToBoolean(
+				`let $t := xml/title[1]
+				return  <b>{$t}</b>/title[1] is xml/title[1]`,
+				documentNode,
+				undefined,
+				{},
+				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+			)
+		);
+	});
+
 	it('accepts CDataSections', () => {
 		chai.assert.equal(
 			evaluateXPathToFirstNode<slimdom.Element>(

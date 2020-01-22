@@ -1,6 +1,6 @@
 import atomize from '../dataTypes/atomize';
 import castToType from '../dataTypes/castToType';
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import ISequence from '../dataTypes/ISequence';
 import isSubtypeOf from '../dataTypes/isSubtypeOf';
 import sequenceFactory from '../dataTypes/sequenceFactory';
@@ -60,8 +60,9 @@ function asyncGenerateEvery<T>(
 	};
 }
 
-function filterElementAndTextNodes(node) {
-	return node.nodeType === node.ELEMENT_NODE || node.nodeType === node.TEXT_NODE;
+function filterElementAndTextNodes(node, domFacade) {
+	const nodeType = domFacade.getNodeType(node);
+	return nodeType === node.ELEMENT_NODE || nodeType === node.TEXT_NODE;
 }
 
 function anyAtomicTypeDeepEqual(
@@ -256,11 +257,19 @@ function nodeDeepEqual(
 	let item1Nodes = executionParameters.domFacade.getChildNodes(item1.value);
 	let item2Nodes = executionParameters.domFacade.getChildNodes(item2.value);
 
-	item1Nodes = item1Nodes.filter(filterElementAndTextNodes);
-	item2Nodes = item2Nodes.filter(filterElementAndTextNodes);
+	item1Nodes = item1Nodes.filter(item1Node =>
+		filterElementAndTextNodes(item1Node, executionParameters.domFacade)
+	);
+	item2Nodes = item2Nodes.filter(item2Node =>
+		filterElementAndTextNodes(item2Node, executionParameters.domFacade)
+	);
 
-	const item1NodesSeq = sequenceFactory.create(item1Nodes.map(createNodeValue));
-	const item2NodesSeq = sequenceFactory.create(item2Nodes.map(createNodeValue));
+	const item1NodesSeq = sequenceFactory.create(
+		item1Nodes.map(node => createPointerValue(node, executionParameters.domFacade))
+	);
+	const item2NodesSeq = sequenceFactory.create(
+		item2Nodes.map(node => createPointerValue(node, executionParameters.domFacade))
+	);
 
 	return sequenceDeepEqual(
 		dynamicContext,
@@ -302,17 +311,22 @@ function elementNodeDeepEqual(
 		item1,
 		item2
 	);
-	const attributes1 = executionParameters.domFacade
+	const domFacade = executionParameters.domFacade;
+	const attributes1 = domFacade
 		.getAllAttributes(item1.value)
-		.filter(attr => attr.namespaceURI !== 'http://www.w3.org/2000/xmlns/')
-		.sort((attrA, attrB) => (attrA.name > attrB.name ? 1 : -1))
-		.map(attr => createNodeValue(attr));
+		.filter(attr => domFacade.getNamespaceURI(attr) !== 'http://www.w3.org/2000/xmlns/')
+		.sort((attrA, attrB) =>
+			domFacade.getNodeName(attrA) > domFacade.getNodeName(attrB) ? 1 : -1
+		)
+		.map(attr => createPointerValue(attr, executionParameters.domFacade));
 
 	const attributes2 = executionParameters.domFacade
 		.getAllAttributes(item2.value)
-		.filter(attr => attr.namespaceURI !== 'http://www.w3.org/2000/xmlns/')
-		.sort((attrA, attrB) => (attrA.name > attrB.name ? 1 : -1))
-		.map(attr => createNodeValue(attr));
+		.filter(attr => domFacade.getNamespaceURI(attr) !== 'http://www.w3.org/2000/xmlns/')
+		.sort((attrA, attrB) =>
+			domFacade.getNodeName(attrA) > domFacade.getNodeName(attrB) ? 1 : -1
+		)
+		.map(attr => createPointerValue(attr, executionParameters.domFacade));
 
 	const attributesDeepEqualGenerator = sequenceDeepEqual(
 		dynamicContext,

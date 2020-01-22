@@ -1,4 +1,4 @@
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import isSubtypeOf from '../dataTypes/isSubtypeOf';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import Expression, { RESULT_ORDERINGS } from '../Expression';
@@ -44,7 +44,7 @@ class AttributeAxis extends Expression {
 		const matchingAttributes = domFacade
 			.getAllAttributes(contextItem.value, this._attributeTestExpression.getBucket())
 			.filter(attr => attr.namespaceURI !== 'http://www.w3.org/2000/xmlns/')
-			.map(attribute => createNodeValue(attribute))
+			.map(attribute => createPointerValue(attribute, executionParameters.domFacade))
 			.filter(item => this._attributeTestExpression.evaluateToBoolean(dynamicContext, item));
 		return sequenceFactory.create(matchingAttributes);
 	}

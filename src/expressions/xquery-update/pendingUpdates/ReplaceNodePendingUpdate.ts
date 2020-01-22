@@ -1,17 +1,17 @@
-import { ConcreteAttributeNode, ConcreteChildNode } from '../../../domFacade/ConcreteNode';
+import { AttributeNodePointer, ChildNodePointer } from '../../../domClone/Pointer';
 import { IPendingUpdate } from '../IPendingUpdate';
 export class ReplaceNodePendingUpdate extends IPendingUpdate {
 	constructor(
-		readonly target: ConcreteAttributeNode | ConcreteChildNode,
-		readonly replacement: (ConcreteAttributeNode | ConcreteChildNode)[]
+		readonly target: AttributeNodePointer | ChildNodePointer,
+		readonly replacement: (AttributeNodePointer | ChildNodePointer)[]
 	) {
 		super('replaceNode');
 	}
 	public toTransferable() {
 		return {
 			['type']: this.type,
-			['target']: this.target,
-			['replacement']: this.replacement
+			['target']: this.target.unwrap(),
+			['replacement']: this.replacement.map(pointer => pointer.unwrap())
 		};
 	}
 }

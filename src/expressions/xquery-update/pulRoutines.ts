@@ -1,7 +1,8 @@
 import IDocumentWriter from '../../documentWriter/IDocumentWriter';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
+import DomFacade from '../../domFacade/DomFacade';
 import IDomFacade from '../../domFacade/IDomFacade';
 import INodesFactory from '../../nodesFactory/INodesFactory';
-import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import QName from '../dataTypes/valueTypes/QName';
 import {
 	deletePu,
@@ -23,125 +24,23 @@ import { InsertAttributesPendingUpdate } from './pendingUpdates/InsertAttributes
 import { InsertBeforePendingUpdate } from './pendingUpdates/InsertBeforePendingUpdate';
 import { InsertIntoAsFirstPendingUpdate } from './pendingUpdates/InsertIntoAsFirstPendingUpdate';
 import { InsertIntoAsLastPendingUpdate } from './pendingUpdates/InsertIntoAsLastPendingUpdate';
+import { InsertIntoPendingUpdate } from './pendingUpdates/InsertIntoPendingUpdate';
 import { RenamePendingUpdate } from './pendingUpdates/RenamePendingUpdate';
 import { ReplaceElementContentPendingUpdate } from './pendingUpdates/ReplaceElementContentPendingUpdate';
 import { ReplaceNodePendingUpdate } from './pendingUpdates/ReplaceNodePendingUpdate';
 import { ReplaceValuePendingUpdate } from './pendingUpdates/ReplaceValuePendingUpdate';
 import { errXUDY0015, errXUDY0016, errXUDY0017, errXUDY0024 } from './XQueryUpdateFacilityErrors';
-import { InsertIntoPendingUpdate } from './pendingUpdates/InsertIntoPendingUpdate';
 
 export const applyUpdates = (
-	pul: IPendingUpdate[],
+	pul: any[],
 	_revalidationModule,
 	_inheritNamespaces,
-	domFacade: IDomFacade,
+	domFacade: DomFacade,
 	nodesFactory: INodesFactory,
 	documentWriter: IDocumentWriter
-) => {
-	// 1. Checks the update primitives on $pul for compatibility using upd:compatibilityCheck.
-	compatibilityCheck(pul, domFacade);
+) => {};
 
-	// 2. The semantics of all update primitives on $pul, other than upd:put primitives, are made effective in the following order:
-	// a. First, all upd:insertInto, upd:insertAttributes, upd:replaceValue, and upd:rename primitives are applied.
-	pul.filter(
-		pu => ['insertInto', 'insertAttributes', 'replaceValue', 'rename'].indexOf(pu.type) !== -1
-	).forEach(pu => {
-		switch (pu.type) {
-			case 'insertInto':
-				const insertPu = pu as InsertIntoPendingUpdate;
-				insertInto(insertPu.target, insertPu.content, documentWriter);
-				break;
-			case 'insertAttributes':
-				const insertAttributesPu = pu as InsertAttributesPendingUpdate;
-				insertAttributes(
-					insertAttributesPu.target,
-					insertAttributesPu.content,
-					domFacade,
-					documentWriter
-				);
-				break;
-			case 'rename':
-				const renamePu = pu as RenamePendingUpdate;
-				rename(renamePu.target, renamePu.newName, domFacade, nodesFactory, documentWriter);
-				break;
-			case 'replaceValue':
-				const replaceValuePu = pu as ReplaceValuePendingUpdate;
-				replaceValue(
-					replaceValuePu.target,
-					replaceValuePu.stringValue,
-					domFacade,
-					documentWriter
-				);
-				break;
-		}
-	});
-
-	// b. Next, all upd:insertBefore, upd:insertAfter, upd:insertIntoAsFirst, and upd:insertIntoAsLast primitives are applied.
-	pul.filter(
-		pu =>
-			['insertBefore', 'insertAfter', 'insertIntoAsFirst', 'insertIntoAsLast'].indexOf(
-				pu.type
-			) !== -1
-	).forEach(pu => {
-		switch (pu.type) {
-			case 'insertAfter':
-				const insertAfterPu = pu as InsertAfterPendingUpdate;
-				insertAfter(insertAfterPu.target, insertAfterPu.content, domFacade, documentWriter);
-				break;
-			case 'insertBefore':
-				const insertBeforePu = pu as InsertBeforePendingUpdate;
-				insertBefore(
-					insertBeforePu.target,
-					insertBeforePu.content,
-					domFacade,
-					documentWriter
-				);
-				break;
-			case 'insertIntoAsFirst':
-				const insertAsFirstPu = pu as InsertIntoAsFirstPendingUpdate;
-				insertIntoAsFirst(
-					insertAsFirstPu.target,
-					insertAsFirstPu.content,
-					domFacade,
-					documentWriter
-				);
-				break;
-			case 'insertIntoAsLast':
-				const insertAsLastPu = pu as InsertIntoAsLastPendingUpdate;
-				insertIntoAsLast(insertAsLastPu.target, insertAsLastPu.content, documentWriter);
-				break;
-		}
-	});
-
-	// c. Next, all upd:replaceNode primitives are applied.
-	pul.filter(pu => pu.type === 'replaceNode').forEach(pu => {
-		const replacePu = pu as ReplaceNodePendingUpdate;
-		replaceNode(replacePu.target, replacePu.replacement, domFacade, documentWriter);
-	});
-
-	// d. Next, all upd:replaceElementContent primitives are applied.
-	pul.filter(pu => pu.type === 'replaceElementContent').forEach(pu => {
-		const replacePu = pu as ReplaceElementContentPendingUpdate;
-		replaceElementContent(replacePu.target, replacePu.text, domFacade, documentWriter);
-	});
-
-	// e. Next, all upd:delete primitives are applied.
-	pul.filter(pu => pu.type === 'delete').forEach(pu => {
-		const deletePendingUpdate = pu as DeletePendingUpdate;
-		deletePu(deletePendingUpdate.target, domFacade, documentWriter);
-	});
-
-	// Point 3. to 7. are either not necessary or should be done by the caller.
-
-	// 8. As the final step, all upd:put primitives on $pul are applied.
-	if (pul.some(pu => pu.type === 'put')) {
-		throw new Error(
-			'Not implemented: the execution for pendingUpdate "put" is not yet implemented.'
-		);
-	}
-};
-
-const compatibilityCheck = (pul: IPendingUpdate[], domFacade) => {
+const compatibilityCheck = (pul: any[], domFacade) => {
 	function findDuplicateTargets(type, onFoundDuplicate) {
 		const targets = new Set();
 		pul.filter(pu => pu.type === type)

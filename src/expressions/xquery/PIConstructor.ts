@@ -3,8 +3,14 @@ import { evaluateNCNameExpression } from './nameExpression';
 
 import Specificity from '../Specificity';
 
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
+
+import {
+	ProcessingInstructionNodePointer,
+	ProcessingInstructionNodeSilhouette
+} from '../../domClone/Pointer';
 import castToType from '../dataTypes/castToType';
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import DynamicContext from '../DynamicContext';
 import ExecutionParameters from '../ExecutionParameters';
@@ -14,6 +20,17 @@ function assertValidTarget(target) {
 	if (/^xml$/i.test(target)) {
 		throw new Error(`XQDY0064: The target of a created PI may not be "${target}"`);
 	}
+}
+
+function createPIPointer(target: string, data: string) {
+	const piSilhouette: ProcessingInstructionNodeSilhouette = {
+		data,
+		isSilhouette: true,
+		nodeName: target,
+		nodeType: NODE_TYPES.PROCESSING_INSTRUCTION_NODE,
+		target
+	};
+	return new ProcessingInstructionNodePointer(piSilhouette, null);
 }
 
 class PIConstructor extends Expression {
@@ -59,7 +76,11 @@ class PIConstructor extends Expression {
 				const target = this._target.targetValue;
 				assertValidTarget(target);
 				return sequenceFactory.singleton(
-					createNodeValue(nodesFactory.createProcessingInstruction(target, data))
+					createPointerValue(
+						// nodesFactory.createProcessingInstruction(target, data),
+						createPIPointer(target, data),
+						executionParameters.domFacade
+					)
 				);
 			}
 
@@ -79,7 +100,11 @@ class PIConstructor extends Expression {
 
 					assertValidTarget(target);
 					return ready(
-						createNodeValue(nodesFactory.createProcessingInstruction(target, data))
+						createPointerValue(
+							// nodesFactory.createProcessingInstruction(target, data),
+							createPIPointer(target, data),
+							executionParameters.domFacade
+						)
 					);
 				}
 			});

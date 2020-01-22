@@ -1,9 +1,12 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 import Specificity from '../Specificity';
 import { errXPST0081 } from '../XPathErrors';
-import { errXQDY0025, errXQDY0096, errXQST0040, errXQTY0024 } from './XQueryErrors';
+import { errXQDY0096, errXQST0040, errXQTY0024 } from './XQueryErrors';
 
-import createNodeValue from '../dataTypes/createNodeValue';
+import { ElementNodePointer, ElementNodeSilhouette } from '../../domClone/Pointer';
+import { ConcreteAttributeNode, ConcreteChildNode, NODE_TYPES } from '../../domFacade/ConcreteNode';
+import DomFacade from '../../domFacade/DomFacade';
+import createPointerValue from '../dataTypes/createPointerValue';
 import ISequence from '../dataTypes/ISequence';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import Value from '../dataTypes/Value';
@@ -15,12 +18,12 @@ import parseContent from './ElementConstructorContent';
 import { evaluateQNameExpression } from './nameExpression';
 
 class ElementConstructor extends Expression {
-	public _attributes: AttributeConstructor[];
-	public _contents: Expression[];
-	public _name: QName;
-	public _nameExpr: Expression;
-	public _namespacesInScope: {};
-	public _staticContext: any;
+	private _attributes: AttributeConstructor[];
+	private _contents: Expression[];
+	private _name: QName;
+	private _nameExpr: Expression;
+	private _namespacesInScope: {};
+	private _staticContext: any;
 
 	constructor(
 		name:
@@ -49,7 +52,9 @@ class ElementConstructor extends Expression {
 			(namespacesInScope, namespaceDecl) => {
 				if (namespaceDecl.prefix in namespacesInScope) {
 					throw new Error(
-						`XQST0071: The namespace declaration with the prefix ${namespaceDecl.prefix} has already been declared on the constructed element.`
+						`XQST0071: The namespace declaration with the prefix ${
+							namespaceDecl.prefix
+						} has already been declared on the constructed element.`
 					);
 				}
 				namespacesInScope[namespaceDecl.prefix] = namespaceDecl.uri;
@@ -65,7 +70,8 @@ class ElementConstructor extends Expression {
 	}
 
 	public evaluate(dynamicContext, executionParameters) {
-		const nodesFactory = executionParameters.nodesFactory;
+		// const nodesFactory = executionParameters.nodesFactory;
+		const domFacade: DomFacade = executionParameters.domFacade;
 
 		let attributePhaseDone = false;
 		let attributesSequence;
@@ -154,40 +160,39 @@ class ElementConstructor extends Expression {
 					throw errXQDY0096(this._name);
 				}
 
-				const element = nodesFactory.createElementNS(
-					this._name.namespaceURI,
-					this._name.buildPrefixedName()
-				);
+				const childNodes: ConcreteChildNode[] = [];
+				const attributes: ConcreteAttributeNode[] = [];
 
-				// Plonk all attribute on the element
+				const elementSilhouette: ElementNodeSilhouette = {
+					nodeType: NODE_TYPES.ELEMENT_NODE,
+					isSilhouette: true,
+					attributes,
+					childNodes,
+					nodeName: this._name.buildPrefixedName(),
+					namespaceURI: this._name.namespaceURI,
+					prefix: this._name.prefix,
+					localName: this._name.localName
+				};
+
+				const pointer = new ElementNodePointer(elementSilhouette, null);
+
+				// // Plonk all attribute on the element
 				attributeNodes.forEach(attr => {
-					element.setAttributeNodeNS(attr.value);
+					elementSilhouette.attributes.push(attr.value.unwrap());
 				});
 
 				// Plonk all childNodes, these are special though
 				const parsedContent = parseContent(allChildNodes, executionParameters, errXQTY0024);
 				parsedContent.attributes.forEach(attrNode => {
-					// The contents may include attributes, 'clone' them and set them on the element
-					if (element.hasAttributeNS(attrNode.namespaceURI, attrNode.localName)) {
-						throw errXQDY0025(attrNode.name);
-					}
-					element.setAttributeNS(
-						attrNode.namespaceURI,
-						attrNode.prefix
-							? attrNode.prefix + ':' + attrNode.localName
-							: attrNode.localName,
-						attrNode.value
-					);
+					elementSilhouette.attributes.push(attrNode);
 				});
 				parsedContent.contentNodes.forEach(childNode => {
-					element.appendChild(childNode);
+					elementSilhouette.childNodes.push(childNode);
 				});
-
-				element.normalize();
 
 				done = true;
 
-				return ready(createNodeValue(element));
+				return ready(createPointerValue(pointer, domFacade));
 			}
 		});
 	}

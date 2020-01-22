@@ -1,6 +1,6 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import TestAbstractExpression from '../tests/TestAbstractExpression';
 
@@ -26,7 +26,7 @@ class ChildAxis extends Expression {
 		const contextNode = contextItem.value;
 		const nodeValues = domFacade
 			.getChildNodes(contextNode, this._childExpression.getBucket())
-			.map(createNodeValue);
+			.map(node => createPointerValue(node, executionParameters.domFacade));
 		const childContextSequence = sequenceFactory.create(nodeValues);
 		return childContextSequence.filter(item => {
 			return this._childExpression.evaluateToBoolean(dynamicContext, item);

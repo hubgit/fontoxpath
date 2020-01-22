@@ -1,4 +1,4 @@
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import isSubtypeOf from '../dataTypes/isSubtypeOf';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 
@@ -43,9 +43,9 @@ const fnId: FunctionDefinitionType = function(
 			? targetNodeValue.value
 			: targetNodeValue.value.ownerDocument;
 
-	const matchingNodes = findDescendants(domFacade, documentNode, function(node) {
+	const matchingNodes = findDescendants(domFacade, documentNode, node => {
 		// TODO: use the is-id property of attributes / elements
-		if (node.nodeType !== node.ELEMENT_NODE) {
+		if (domFacade.getNodeType(node) !== node.ELEMENT_NODE) {
 			return false;
 		}
 		const idAttribute = domFacade.getAttribute(node, 'id');
@@ -59,7 +59,7 @@ const fnId: FunctionDefinitionType = function(
 		isMatchingIdById[idAttribute] = false;
 		return true;
 	});
-	return sequenceFactory.create(matchingNodes.map(createNodeValue));
+	return sequenceFactory.create(matchingNodes.map(node => createPointerValue(node, domFacade)));
 };
 
 const fnIdref: FunctionDefinitionType = function(
@@ -87,7 +87,7 @@ const fnIdref: FunctionDefinitionType = function(
 	// TODO: Index idrefs to optimize this lookup
 	const matchingNodes = findDescendants(domFacade, documentNode, function(node) {
 		// TODO: use the is-idrefs property of attributes / elements
-		if (node.nodeType !== node.ELEMENT_NODE) {
+		if (domFacade.getNodeType(node) !== node.ELEMENT_NODE) {
 			return false;
 		}
 		const idAttribute = domFacade.getAttribute(node, 'idref');
@@ -99,7 +99,7 @@ const fnIdref: FunctionDefinitionType = function(
 			return isMatchingIdRefById[idRef];
 		});
 	});
-	return sequenceFactory.create(matchingNodes.map(createNodeValue));
+	return sequenceFactory.create(matchingNodes.map(node => createPointerValue(node, domFacade)));
 };
 
 export default {

@@ -6,6 +6,7 @@ import {
 	ConcreteProcessingInstructionNode,
 	NODE_TYPES
 } from '../../domFacade/ConcreteNode';
+import DomFacade from '../../domFacade/DomFacade';
 import IDomFacade from '../../domFacade/IDomFacade';
 import DomBackedNodesFactory from '../../nodesFactory/DomBackedNodesFactory';
 import INodesFactory from '../../nodesFactory/INodesFactory';
@@ -147,11 +148,11 @@ export const insertIntoAsLast = (
 export const insertAttributes = (
 	target: Element,
 	content: Attr[],
-	domFacade: (IDomFacade | null) | undefined,
+	domFacade: (DomFacade | null) | undefined,
 	documentWriter: (IDocumentWriter | null) | undefined
 ) => {
 	content.forEach(attr => {
-		if (domFacade.getAttribute(target, attr.name)) {
+		if (domFacade.getAttribute(target as any, attr.name)) {
 			throw errXUDY0021(`An attribute ${attr.name} already exists.`);
 		}
 		documentWriter.setAttributeNS(target, attr.namespaceURI, attr.name, attr.value);

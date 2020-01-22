@@ -1,8 +1,10 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 import Specificity from '../Specificity';
 
+import { CommentNodePointer, CommentNodeSilhouette } from '../../domClone/Pointer';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import castToType from '../dataTypes/castToType';
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 
 class CommentConstructor extends Expression {
@@ -19,7 +21,9 @@ class CommentConstructor extends Expression {
 	public evaluate(_dynamicContext, executionParameters) {
 		const nodesFactory = executionParameters.nodesFactory;
 		if (!this._expr) {
-			return sequenceFactory.singleton(createNodeValue(nodesFactory.createComment('')));
+			return sequenceFactory.singleton(
+				createPointerValue(nodesFactory.createComment(''), executionParameters.domFacade)
+			);
 		}
 		const sequence = this._expr.evaluateMaybeStatically(_dynamicContext, executionParameters);
 		return sequence.atomize(executionParameters).mapAll(items => {
@@ -31,7 +35,20 @@ class CommentConstructor extends Expression {
 				);
 			}
 
-			return sequenceFactory.singleton(createNodeValue(nodesFactory.createComment(content)));
+			const commentNodeSilhouette: CommentNodeSilhouette = {
+				data: content,
+				isSilhouette: true,
+				nodeType: NODE_TYPES.COMMENT_NODE
+			};
+			const commentNodePointer = new CommentNodePointer(commentNodeSilhouette, null);
+
+			return sequenceFactory.singleton(
+				createPointerValue(
+					// nodesFactory.createComment(content),
+					commentNodePointer,
+					executionParameters.domFacade
+				)
+			);
 		});
 	}
 }

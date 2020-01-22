@@ -57,9 +57,9 @@ export default function atomize(
 				allTextNodes.push(aNode);
 				return;
 			}
-			executionParameters.domFacade.getChildNodes(aNode, null).forEach(function(childNode) {
-				getTextNodes(childNode);
-			});
+			executionParameters.domFacade
+				.getChildNodes(aNode, null)
+				.forEach(childNode => getTextNodes(childNode));
 		})(node);
 
 		return createAtomicValue(

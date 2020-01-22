@@ -1,11 +1,7 @@
-import {
-	ConcreteAttributeNode,
-	ConcreteChildNode,
-	ConcreteNode,
-	NODE_TYPES
-} from '../../domFacade/ConcreteNode';
+import { AttributeNodePointer, ChildNodePointer, NodePointer } from '../../domClone/Pointer';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
+import DomFacade from '../../domFacade/DomFacade';
 import IDomFacade from '../../domFacade/IDomFacade';
-import IWrappingDomFacade from '../../domFacade/IWrappingDomFacade';
 import isSubtypeOf from './isSubtypeOf';
 import Value from './Value';
 
@@ -19,15 +15,15 @@ import Value from './Value';
  * @return Returns 0 if node1 equals node2, -1 if node1 precedes node2, and 1 otherwise
  */
 function compareSiblingElements(
-	domFacade: IDomFacade,
-	node1: ConcreteNode,
-	node2: ConcreteNode
+	domFacade: DomFacade,
+	node1: NodePointer,
+	node2: NodePointer
 ): number {
 	if (node1 === node2) {
 		return 0;
 	}
 
-	const parentNode = domFacade.getParentNode(node1, null);
+	const parentNode = domFacade.getParentNode(node1 as ChildNodePointer, null);
 	const childNodes = domFacade.getChildNodes(parentNode, null);
 	for (let i = 0, l = childNodes.length; i < l; ++i) {
 		const childNode = childNodes[i];
@@ -48,18 +44,15 @@ function compareSiblingElements(
  * @param	node       The node to find all ancestors of
  * @return	All of the ancestors of the given node
  */
-function findAllAncestors(domFacade: IWrappingDomFacade, node: ConcreteNode): ConcreteNode[] {
-	const ancestors: ConcreteNode[] = [];
+function findAllAncestors(domFacade: DomFacade, node: NodePointer): NodePointer[] {
+	const ancestors: NodePointer[] = [];
 	for (
 		let ancestor = node;
 		ancestor;
 		ancestor =
-			node.nodeType === NODE_TYPES.DOCUMENT_NODE
+			domFacade.getNodeType(node) === NODE_TYPES.DOCUMENT_NODE
 				? null
-				: domFacade.getParentNode(
-						ancestor as ConcreteChildNode | ConcreteAttributeNode,
-						null
-				  )
+				: domFacade.getParentNode(ancestor as ChildNodePointer | AttributeNodePointer, null)
 	) {
 		ancestors.unshift(ancestor);
 	}
@@ -75,14 +68,13 @@ function findAllAncestors(domFacade: IWrappingDomFacade, node: ConcreteNode): Co
  * @param nodeA
  * @param nodeB
  *
- * @return Returns 0 if the positions are equal, -1 if the first position precedes the second,
- *						and 1 otherwise.
+ * @return Returns 0 if the positions are equal, -1 if the first position precedes the second, and 1 otherwise.
  */
 function compareElements(
-	tieBreakerArr: ConcreteNode[],
-	domFacade: IWrappingDomFacade,
-	nodeA: ConcreteNode,
-	nodeB: ConcreteNode
+	tieBreakerArr: NodePointer[],
+	domFacade: DomFacade,
+	nodeA: NodePointer,
+	nodeB: NodePointer
 ): number {
 	if (nodeA === nodeB) {
 		return 0;
@@ -175,7 +167,7 @@ export const compareNodePositions = function(domFacade, node1, node2) {
  * @return  The sorted nodes
  */
 export const sortNodeValues = function sortNodeValues(
-	domFacade: IWrappingDomFacade,
+	domFacade: DomFacade,
 	nodeValues: Value[]
 ): Value[] {
 	return nodeValues

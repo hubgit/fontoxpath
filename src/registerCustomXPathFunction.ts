@@ -10,8 +10,8 @@ import {
 	registerStaticallyKnownNamespace,
 	staticallyKnownNamespaceByPrefix
 } from './expressions/staticallyKnownNamespaces';
-import transformXPathItemToJavascriptObject from './transformXPathItemToJavascriptObject';
 import { IterationHint } from './expressions/util/iterators';
+import transformXPathItemToJavascriptObject from './transformXPathItemToJavascriptObject';
 
 type DynamicContextAdapter = {
 	currentContext: any;
@@ -114,8 +114,24 @@ export default function registerCustomXPathFunction(
 			['domFacade']: executionParameters.domFacade.unwrap()
 		};
 
+		/*
+registerCustomXPathFunction(
+	...,
+	(node) => node;
+)
+*/
+
+		/*
+let $a := <a/>
+return app:doThings($a)
+*/
+
 		const jsResult = callback.apply(undefined, [dynamicContextAdapter, ...newArguments]);
-		const xpathResult = adaptJavaScriptValueToXPathValue(jsResult, returnType);
+		const xpathResult = adaptJavaScriptValueToXPathValue(
+			executionParameters.domFacade,
+			jsResult,
+			returnType
+		);
 
 		return xpathResult;
 	};

@@ -32,6 +32,7 @@ function evaluateReplaceNode(
 	targetValueIterator: IAsyncIterator<UpdatingExpressionResult>,
 	replacementValueIterator: IAsyncIterator<UpdatingExpressionResult>
 ) {
+	const domFacade = executionParameters.domFacade;
 	let rlist;
 	let rlistUpdates;
 	let parent;
@@ -115,15 +116,16 @@ function evaluateReplaceNode(
 				}
 
 				rlist.attributes.reduce((namespaceBindings, attributeNode) => {
-					const prefix = attributeNode.prefix || '';
+					const prefix = domFacade.getPrefix(attributeNode) || '';
+					const namespaceURI = domFacade.getNamespaceURI(attributeNode);
 
 					// No attribute node in $rlist may have a QName
 					// whose implied namespace binding conflicts with
 					// a namespace binding in the "namespaces"
 					// property of $parent [err:XUDY0023].
 					const boundNamespaceURI = parent.lookupNamespaceURI(prefix);
-					if (boundNamespaceURI && boundNamespaceURI !== attributeNode.namespaceURI) {
-						throw errXUDY0023(attributeNode.namespaceURI);
+					if (boundNamespaceURI && boundNamespaceURI !== namespaceURI) {
+						throw errXUDY0023(namespaceURI);
 					}
 
 					// Multiple attribute nodes in $rlist may not have
@@ -131,12 +133,12 @@ function evaluateReplaceNode(
 					// conflict with each other [err:XUDY0024].
 					const alreadyDeclaredNamespace = namespaceBindings[prefix];
 					if (alreadyDeclaredNamespace) {
-						if (attributeNode.namespaceURI !== alreadyDeclaredNamespace) {
-							throw errXUDY0024(attributeNode.namespaceURI);
+						if (namespaceURI !== alreadyDeclaredNamespace) {
+							throw errXUDY0024(namespaceURI);
 						}
 					}
 
-					namespaceBindings[prefix] = attributeNode.namespaceURI;
+					namespaceBindings[prefix] = namespaceURI;
 					return namespaceBindings;
 				}, []);
 			}

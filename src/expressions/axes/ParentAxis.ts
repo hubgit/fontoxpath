@@ -1,6 +1,6 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import TestAbstractExpression from '../tests/TestAbstractExpression';
 
@@ -29,7 +29,7 @@ class ParentAxis extends Expression {
 		if (!parentNode) {
 			return sequenceFactory.empty();
 		}
-		const parentNodeValue = createNodeValue(parentNode);
+		const parentNodeValue = createPointerValue(parentNode, executionParameters.domFacade);
 		const nodeIsMatch = this._parentExpression.evaluateToBoolean(
 			dynamicContext,
 			parentNodeValue

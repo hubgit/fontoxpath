@@ -1,13 +1,15 @@
-import { ConcreteChildNode, ConcreteNode, NODE_TYPES } from '../../domFacade/ConcreteNode';
-import IDomFacade from '../../domFacade/IDomFacade';
+import { ChildNodePointer, NodePointer, ParentNodePointer } from '../../domClone/Pointer';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
+import DomFacade from '../../domFacade/DomFacade';
 import { DONE_TOKEN, IAsyncIterator, ready } from './iterators';
 
 export default function createChildGenerator(
-	domFacade: IDomFacade,
-	node: ConcreteNode,
+	domFacade: DomFacade,
+	pointer: NodePointer,
 	bucket: string | null
-): IAsyncIterator<ConcreteChildNode> {
-	if (node.nodeType !== NODE_TYPES.ELEMENT_NODE && node.nodeType !== NODE_TYPES.DOCUMENT_NODE) {
+): IAsyncIterator<ChildNodePointer> {
+	const nodeType = domFacade.getNodeType(pointer);
+	if (nodeType !== NODE_TYPES.ELEMENT_NODE && nodeType !== NODE_TYPES.DOCUMENT_NODE) {
 		return {
 			next: () => {
 				return DONE_TOKEN;
@@ -15,7 +17,7 @@ export default function createChildGenerator(
 		};
 	}
 
-	let childNode = domFacade.getFirstChild(node, bucket);
+	let childNode = domFacade.getFirstChild(pointer as ParentNodePointer, bucket);
 	return {
 		next() {
 			if (!childNode) {

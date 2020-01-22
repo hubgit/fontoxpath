@@ -1,34 +1,41 @@
 import IDocumentWriter from '../../documentWriter/IDocumentWriter';
 import {
+	AttributeNodePointer,
+	CDATASectionNodePointer,
+	ElementNodePointer,
+	NodePointer,
+	ParentNodePointer,
+	ProcessingInstructionNodePointer,
+	TextNodePointer
+} from '../../domClone/Pointer';
+import {
 	ConcreteDocumentNode,
 	ConcreteElementNode,
-	ConcreteNode,
 	NODE_TYPES
 } from '../../domFacade/ConcreteNode';
-import IWrappingDomFacade from '../../domFacade/IWrappingDomFacade';
+import DomFacade from '../../domFacade/DomFacade';
 import INodesFactory from '../../nodesFactory/INodesFactory';
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
+import ISequence from '../dataTypes/ISequence';
 import isSubtypeOf from '../dataTypes/isSubtypeOf';
-import Value from '../dataTypes/Value';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import QName from '../dataTypes/valueTypes/QName';
 import DynamicContext from '../DynamicContext';
 import ExecutionParameters from '../ExecutionParameters';
 import Expression, { RESULT_ORDERINGS } from '../Expression';
+import { separateXDMValueFromUpdatingExpressionResult } from '../PossiblyUpdatingExpression';
 import Specificity from '../Specificity';
 import StaticContext from '../StaticContext';
 import UpdatingExpressionResult from '../UpdatingExpressionResult';
-import { DONE_TOKEN, IAsyncIterator, IterationHint, notReady, ready } from '../util/iterators';
+import { IAsyncIterator, IterationHint, ready } from '../util/iterators';
+import { IPendingUpdate } from './IPendingUpdate';
 import { applyUpdates, mergeUpdates } from './pulRoutines';
 import UpdatingExpression from './UpdatingExpression';
 import { errXUDY0014, errXUDY0037, errXUTY0013 } from './XQueryUpdateFacilityErrors';
-import { IPendingUpdate } from './IPendingUpdate';
-import ISequence from '../dataTypes/ISequence';
-import { separateXDMValueFromUpdatingExpressionResult } from '../PossiblyUpdatingExpression';
 
 function deepCloneNode(
-	node: ConcreteNode,
-	domFacade: IWrappingDomFacade,
+	pointer: NodePointer,
+	domFacade: DomFacade,
 	nodesFactory: INodesFactory,
 	documentWriter: IDocumentWriter
 ) {
@@ -42,43 +49,56 @@ function deepCloneNode(
 	// If copy-namespaces mode in the static context specifies preserve, all in-scope-namespaces of the original element are retained in the new copy. If copy-namespaces mode specifies no-preserve, the new copy retains only those in-scope namespaces of the original element that are used in the names of the element and its attributes.
 	// All other properties of the copied nodes are preserved.
 
-	switch (node.nodeType) {
+	switch (domFacade.getNodeType(pointer)) {
 		case NODE_TYPES.ELEMENT_NODE:
-			const cloneElem = nodesFactory.createElementNS(node.namespaceURI, node.nodeName);
+			pointer = pointer as ElementNodePointer;
+			const cloneElem = nodesFactory.createElementNS(
+				domFacade.getNamespaceURI(pointer as ElementNodePointer),
+				domFacade.getNodeName(pointer as ElementNodePointer)
+			);
 			domFacade
-				.getAllAttributes(node)
+				.getAllAttributes(pointer as ElementNodePointer)
 				.forEach(attr =>
 					documentWriter.setAttributeNS(
 						cloneElem,
-						attr.namespaceURI,
-						attr.name,
-						attr.value
+						domFacade.getNamespaceURI(attr),
+						domFacade.getNodeName(attr),
+						domFacade.getData(attr)
 					)
 				);
-			for (const child of domFacade.getChildNodes(node)) {
+			for (const child of domFacade.getChildNodes(pointer as ElementNodePointer)) {
 				const descendant = deepCloneNode(child, domFacade, nodesFactory, documentWriter);
 				documentWriter.insertBefore(cloneElem as ConcreteElementNode, descendant, null);
 			}
 			return cloneElem;
 		case NODE_TYPES.ATTRIBUTE_NODE:
-			const cloneAttr = nodesFactory.createAttributeNS(node.namespaceURI, node.nodeName);
-			cloneAttr.value = node.value;
+			pointer = pointer as AttributeNodePointer;
+			const cloneAttr = nodesFactory.createAttributeNS(
+				domFacade.getNamespaceURI(pointer as AttributeNodePointer),
+				domFacade.getNodeName(pointer as AttributeNodePointer)
+			);
+			cloneAttr.value = domFacade.getData(pointer as AttributeNodePointer);
 			return cloneAttr;
 		case NODE_TYPES.CDATA_SECTION_NODE:
-			return nodesFactory.createCDATASection(node.data);
+			return nodesFactory.createCDATASection(
+				domFacade.getData(pointer as CDATASectionNodePointer)
+			);
 		case NODE_TYPES.COMMENT_NODE:
-			return nodesFactory.createComment(node.data);
+			return nodesFactory.createComment(domFacade.getData(pointer as AttributeNodePointer));
 		case NODE_TYPES.DOCUMENT_NODE:
 			const cloneDoc = nodesFactory.createDocument();
-			for (const child of domFacade.getChildNodes(node)) {
+			for (const child of domFacade.getChildNodes(pointer as ParentNodePointer)) {
 				const descendant = deepCloneNode(child, domFacade, nodesFactory, documentWriter);
 				documentWriter.insertBefore(cloneDoc as ConcreteDocumentNode, descendant, null);
 			}
 			return cloneDoc;
 		case NODE_TYPES.PROCESSING_INSTRUCTION_NODE:
-			return nodesFactory.createProcessingInstruction(node.target, node.data);
+			return nodesFactory.createProcessingInstruction(
+				domFacade.getTarget(pointer as ProcessingInstructionNodePointer),
+				domFacade.getData(pointer as ProcessingInstructionNodePointer)
+			);
 		case NODE_TYPES.TEXT_NODE:
-			return nodesFactory.createTextNode(node.data);
+			return nodesFactory.createTextNode(domFacade.getData(pointer as TextNodePointer));
 	}
 }
 
@@ -119,6 +139,19 @@ class TransformExpression extends UpdatingExpression {
 		this._variableBindings = variableBindings;
 		this._modifyExpr = modifyExpr;
 		this._returnExpr = returnExpr;
+	}
+
+	public evaluate(
+		dynamicContext: DynamicContext,
+		executionParameters: ExecutionParameters
+	): ISequence {
+		// If we were updating, the calling code would have called the evaluateWithUpdateList
+		// method. We can assume we're not actually updating
+		const pendingUpdateIterator = this.evaluateWithUpdateList(
+			dynamicContext,
+			executionParameters
+		);
+		return separateXDMValueFromUpdatingExpressionResult(pendingUpdateIterator, _pul => {});
 	}
 
 	public evaluateWithUpdateList(
@@ -167,8 +200,9 @@ class TransformExpression extends UpdatingExpression {
 						const node = sv.value.xdmValue[0];
 
 						// A new copy is made of $node and all nodes that have $node as an ancestor, collectively referred to as copied nodes.
-						const copiedNodes = createNodeValue(
-							deepCloneNode(node.value, domFacade, nodesFactory, documentWriter)
+						const copiedNodes = createPointerValue(
+							deepCloneNode(node.value, domFacade, nodesFactory, documentWriter),
+							domFacade
 						);
 						createdNodes.push(copiedNodes.value);
 						toMergePuls.push(sv.value.pendingUpdateList);
@@ -253,19 +287,6 @@ class TransformExpression extends UpdatingExpression {
 		this.isUpdating =
 			this._variableBindings.some(varBinding => varBinding.sourceExpr.isUpdating) ||
 			this._returnExpr.isUpdating;
-	}
-
-	public evaluate(
-		dynamicContext: DynamicContext,
-		executionParameters: ExecutionParameters
-	): ISequence {
-		// If we were updating, the calling code would have called the evaluateWithUpdateList
-		// method. We can assume we're not actually updating
-		const pendingUpdateIterator = this.evaluateWithUpdateList(
-			dynamicContext,
-			executionParameters
-		);
-		return separateXDMValueFromUpdatingExpressionResult(pendingUpdateIterator, _pul => {});
 	}
 }
 

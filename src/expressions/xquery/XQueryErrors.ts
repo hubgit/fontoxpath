@@ -1,6 +1,8 @@
-export const errXQTY0024 = node => {
+export const errXQTY0024 = (node, domFacade) => {
 	const nodeString =
-		node.nodeType === node.ATTRIBUTE_NODE ? `${node.name}="${node.value}"` : node.outerHTML;
+		domFacade.getNodeType(node) === node.ATTRIBUTE_NODE
+			? `${domFacade.getNodeName(node)}="${domFacade.getData(node)}"`
+			: node.outerHTML;
 	return new Error(
 		`XQTY0024: The node ${nodeString} follows a node that is not an attribute node or a namespace node.`
 	);

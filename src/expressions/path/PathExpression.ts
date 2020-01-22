@@ -1,6 +1,6 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 
-import IWrappingDomFacade from '../../domFacade/IWrappingDomFacade';
+import DomFacade from '../../domFacade/DomFacade';
 import { compareNodePositions, sortNodeValues } from '../dataTypes/documentOrderUtils';
 import ISequence from '../dataTypes/ISequence';
 import isSubtypeOf from '../dataTypes/isSubtypeOf';
@@ -79,7 +79,7 @@ interface IMappedIterator extends IAsyncIterator<Value> {
 }
 
 function mergeSortedSequences(
-	domFacade: IWrappingDomFacade,
+	domFacade: DomFacade,
 	sequences: IAsyncIterator<ISequence>
 ): ISequence {
 	const allIterators: IMappedIterator[] = [];
@@ -188,7 +188,7 @@ function mergeSortedSequences(
 	});
 }
 
-function sortResults(domFacade: IWrappingDomFacade, result: Value[]) {
+function sortResults(domFacade: DomFacade, result: Value[]) {
 	let resultContainsNodes = false;
 	let resultContainsNonNodes = false;
 	result.forEach(resultValue => {

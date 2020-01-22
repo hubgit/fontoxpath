@@ -1,12 +1,16 @@
+import { Pointer } from '../domClone/Pointer';
+import DomFacade from '../domFacade/DomFacade';
 import ArrayValue from './dataTypes/ArrayValue';
 import createAtomicValue, { falseBoolean, trueBoolean } from './dataTypes/createAtomicValue';
-import createNodeValue from './dataTypes/createNodeValue';
+import createPointerValue from './dataTypes/createPointerValue';
 import ISequence from './dataTypes/ISequence';
 import MapValue from './dataTypes/MapValue';
 import sequenceFactory from './dataTypes/sequenceFactory';
 import Value from './dataTypes/Value';
 import DateTime from './dataTypes/valueTypes/DateTime';
 import createDoublyIterableSequence from './util/createDoublyIterableSequence';
+
+// TODO: msc=> wrap actual nodes to pointers in this part
 
 /**
  * Adapt a JavaScript value to the equivalent in XPath. This dynamically assigns the closest type
@@ -15,7 +19,7 @@ import createDoublyIterableSequence from './util/createDoublyIterableSequence';
  * @return Null if the value is absent and the empty sequence should be
  * output instead
  */
-function adaptItemToXPathValue(value: any): Value | null {
+function adaptItemToXPathValue(value: any, domFacade: DomFacade): Value | null {
 	if (value === null) {
 		return null;
 	}
@@ -30,7 +34,7 @@ function adaptItemToXPathValue(value: any): Value | null {
 		case 'object':
 			// Test if it is a node
 			if (value.nodeType) {
-				return createNodeValue(value);
+				return createPointerValue(new Pointer(value, null), domFacade);
 			}
 			if (Array.isArray(value)) {
 				return new ArrayValue(
@@ -38,7 +42,7 @@ function adaptItemToXPathValue(value: any): Value | null {
 						if (arrayItem === undefined) {
 							return () => sequenceFactory.empty();
 						}
-						const adaptedValue = adaptItemToXPathValue(arrayItem);
+						const adaptedValue = adaptItemToXPathValue(arrayItem, domFacade);
 						const adaptedSequence =
 							adaptedValue === null
 								? sequenceFactory.empty()
@@ -53,7 +57,7 @@ function adaptItemToXPathValue(value: any): Value | null {
 				Object.keys(value)
 					.filter(key => value[key] !== undefined)
 					.map(key => {
-						const adaptedValue = adaptItemToXPathValue(value[key]);
+						const adaptedValue = adaptItemToXPathValue(value[key], domFacade);
 						const adaptedSequence =
 							adaptedValue === null
 								? sequenceFactory.empty()
@@ -75,7 +79,7 @@ function adaptItemToXPathValue(value: any): Value | null {
  * @param  value
  * @return Null if the value is absent and the empty sequence should be outputted instead
  */
-function adaptJavaScriptValueToXPath(type, value: any): Value | null {
+function adaptJavaScriptValueToXPath(type, value: any, domFacade: DomFacade): Value | null {
 	if (value === null) {
 		return null;
 	}
@@ -109,9 +113,9 @@ function adaptJavaScriptValueToXPath(type, value: any): Value | null {
 		case 'element()':
 		case 'text':
 		case 'comment()':
-			return createNodeValue(value);
+			return createPointerValue(new Pointer(value, null), domFacade);
 		case 'item()':
-			return adaptItemToXPathValue(value);
+			return adaptItemToXPathValue(value, domFacade);
 		default:
 			throw new Error(
 				`Values of the type "${type}" can not be adapted to equivalent XPath values.`
@@ -120,6 +124,7 @@ function adaptJavaScriptValueToXPath(type, value: any): Value | null {
 }
 
 export default function adaptJavaScriptValueToXPathValue(
+	domFacade: DomFacade,
 	value: any,
 	expectedType?: string | undefined
 ): ISequence {
@@ -131,7 +136,7 @@ export default function adaptJavaScriptValueToXPathValue(
 
 	switch (multiplicity) {
 		case '?': {
-			const adaptedValue = adaptJavaScriptValueToXPath(type, value);
+			const adaptedValue = adaptJavaScriptValueToXPath(type, value, domFacade);
 			if (adaptedValue === null) {
 				return sequenceFactory.empty();
 			}
@@ -139,14 +144,16 @@ export default function adaptJavaScriptValueToXPathValue(
 		}
 		case '+':
 		case '*': {
-			const convertedValues = value.map(adaptJavaScriptValueToXPath.bind(null, type));
+			const convertedValues = value.map(
+				adaptJavaScriptValueToXPath.bind(null, type, null, domFacade)
+			);
 			return sequenceFactory.create(
 				convertedValues.filter(convertedValue => convertedValue !== null)
 			);
 		}
 
 		default: {
-			const adaptedValue = adaptJavaScriptValueToXPath(type, value);
+			const adaptedValue = adaptJavaScriptValueToXPath(type, value, domFacade);
 			if (adaptedValue === null) {
 				return sequenceFactory.empty();
 			}

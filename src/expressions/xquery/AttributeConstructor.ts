@@ -4,20 +4,34 @@ import { errXPST0081 } from '../XPathErrors';
 import { errXQDY0044 } from './XQueryErrors';
 
 import createAtomicValue from '../dataTypes/createAtomicValue';
-import createNodeValue from '../dataTypes/createNodeValue';
+import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import Value from '../dataTypes/Value';
 import QName from '../dataTypes/valueTypes/QName';
 import { DONE_TOKEN, IAsyncIterator, IterationHint, ready } from '../util/iterators';
 import { evaluateQNameExpression } from './nameExpression';
 
+import { AttributeNodePointer, AttributeNodeSilhouette } from '../../domClone/Pointer';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import StaticContext from '../StaticContext';
 import concatSequences from '../util/concatSequences';
 
 function createAttribute(nodesFactory, name, value) {
-	const attr = nodesFactory.createAttributeNS(name.namespaceURI, name.buildPrefixedName());
-	attr.value = value;
-	return attr;
+	const attributeNodeSilhouette: AttributeNodeSilhouette = {
+		nodeType: NODE_TYPES.ATTRIBUTE_NODE,
+		isSilhouette: true,
+		nodeName: name.buildPrefixedName(),
+		namespaceURI: name.namespaceURI,
+		prefix: name.prefix,
+		localName: name.localName,
+		name: name.buildPrefixedName(),
+		value
+	};
+	return new AttributeNodePointer(attributeNodeSilhouette, null);
+
+	// const attr = nodesFactory.createAttributeNS(name.namespaceURI, name.buildPrefixedName());
+	// attr.value = value;
+	// return attr;
 }
 
 class AttributeConstructor extends Expression {
@@ -120,12 +134,13 @@ class AttributeConstructor extends Expression {
 							})
 						).mapAll(allValueParts =>
 							sequenceFactory.singleton(
-								createNodeValue(
+								createPointerValue(
 									createAttribute(
 										nodesFactory,
 										name,
 										allValueParts.map(val => val.value).join('')
-									)
+									),
+									executionParameters.domFacade
 								)
 							)
 						).value;
@@ -136,7 +151,10 @@ class AttributeConstructor extends Expression {
 				done = true;
 
 				return ready(
-					createNodeValue(createAttribute(nodesFactory, name, (this._value as any).value))
+					createPointerValue(
+						createAttribute(nodesFactory, name, (this._value as any).value),
+						executionParameters.domFacade
+					)
 				);
 			}
 		});
