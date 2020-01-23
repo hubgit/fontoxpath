@@ -768,6 +768,28 @@ PostfixExprWithStep
    )* {
 var toWrap = expr;
 
+var isFilterExpr = false;
+var predicates = [];
+function flushPredicates() {
+
+}
+postfixExpr.forEach(function (postFix) {
+  if (postFix[0] === "predicate") {
+    if(!isFilterExpr) {
+      toWrap = ["filterExpr", toWrap];
+      isFilterExpr = true;
+    }
+    predicates.push(postFix[1]);
+  } else if (postFix[0] === "lookup") {
+    if(!isFilterExpr) {
+      toWrap = ["filterExpr", toWrap];
+      isFilterExpr = true;
+    }
+  } else if (postFix[0] === "argumentList") {
+    toWrap = ["dynamicFunctionInvocationExpr", ["functionItem", toWrap]].concat(postFix[1].length ? [["arguments"].concat(postFix[1])] : []);
+  }
+});
+
 var lookups = [];
 var predicates = [];
 postfixExpr.forEach(function (postFix) {
