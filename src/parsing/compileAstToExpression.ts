@@ -364,10 +364,17 @@ function binaryOperator(ast, compilationOptions) {
 
 function compileLookup(ast, compilationOptions): string | number | Expression {
 	const keyExpression = astHelper.getFirstChild(ast, '*');
-	const lookupKind = keyExpression[0] as 'integerConstantExpr'|'parenthesizedExpression' | 'NCName' | 'star';
+	const lookupKind = keyExpression[0] as
+		| 'integerConstantExpr'
+		| 'parenthesizedExpression'
+		| 'NCName'
+		| 'star';
 	switch (lookupKind) {
 		case 'integerConstantExpr':
-			return parseInt(astHelper.getTextContent(astHelper.getFirstChild(keyExpression, '*')), 10);
+			return parseInt(
+				astHelper.getTextContent(astHelper.getFirstChild(keyExpression, '*')),
+				10
+			);
 		case 'NCName':
 			return astHelper.getTextContent(keyExpression);
 		case 'star':
@@ -808,22 +815,21 @@ function pathExpr(ast, compilationOptions) {
 
 		if (predicates) {
 			return astHelper
-			.getChildren(predicates, '*')
-			.reduce(
-				(innerStep, predicate) =>
-					new Filter(innerStep, compile(predicate, disallowUpdating(compilationOptions))),
-				stepExpression
-			);
+				.getChildren(predicates, '*')
+				.reduce(
+					(innerStep, predicate) =>
+						new Filter(
+							innerStep,
+							compile(predicate, disallowUpdating(compilationOptions))
+						),
+					stepExpression
+				);
 		}
 
 		if (lookups) {
-			return lookups
-			.reduce(
-				(innerStep, lookup) => {
-					return new Lookup(innerStep, compileLookup(lookup, compilationOptions));
-				},
-				stepExpression
-			);
+			return lookups.reduce((innerStep, lookup) => {
+				return new Lookup(innerStep, compileLookup(lookup, compilationOptions));
+			}, stepExpression);
 		}
 
 		return stepExpression;

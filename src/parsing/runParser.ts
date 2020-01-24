@@ -8,6 +8,8 @@ import * as slimdom from 'slimdom';
 const parserString = fs.readFileSync(path.join('src', 'parsing', 'xpath.pegjs'), 'utf-8');
 const parser = peg.generate(parserString); //, { trace: true });
 
+const xQuery = `(/descendant::test-case/map:entry(@name, (test/@file/string(), test/string())[1])) => map:merge()`;
+
 // const xQuery = `(['a', 'b'], ['c', 'd'])[.?1 eq 'c']`; // Lookup-001
 // const xQuery = `[['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b']]?*[.?1 = 'a']`; // Lookup-022
 // const xQuery = `[['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b']]!.?*!.?1`; // Lookup-023
@@ -22,7 +24,7 @@ const parser = peg.generate(parserString); //, { trace: true });
 // const xQuery = `(['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b'])[contains(?1, ?,
 // 'http://www.w3.org/2005/xpath-functions/collation/codepoint')('a')]`; // UnaryLookup-016
 // const xQuery = `[['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b']]?*[?1 = 'a']`; // UnaryLookup-022
-const xQuery = `(map{1.1:1, 2.2:2, 3.3:3},  map{1.1:2, 2.2:3, 3.3:4})[?(2.2) = 3]?(3.3)`; // UnaryLookup-048
+// const xQuery = `(map{1.1:1, 2.2:2, 3.3:3},  map{1.1:2, 2.2:3, 3.3:4})[?(2.2) = 3]?(3.3)`; // UnaryLookup-048
 
 /**
  * Transform the given JsonML fragment into the corresponding DOM structure, using the given document to

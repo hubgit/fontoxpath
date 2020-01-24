@@ -770,80 +770,47 @@ var toWrap = expr;
 
 var isFilterExpr = false;
 var predicates = [];
+var filters = [];
+
 function flushPredicates() {
-
+  if(predicates.length === 1) {
+    filters.push(["predicates", predicates[0]]);
+  } else if (predicates.length !== 0) {
+    filters.push(["predicates"].concat(predicates));
+  }
+  predicates.length = 0;
 }
-postfixExpr.forEach(function (postFix) {
-  if (postFix[0] === "predicate") {
-    if(!isFilterExpr) {
-      toWrap = ["filterExpr", toWrap];
-      isFilterExpr = true;
-    }
-    predicates.push(postFix[1]);
-  } else if (postFix[0] === "lookup") {
-    if(!isFilterExpr) {
-      toWrap = ["filterExpr", toWrap];
-      isFilterExpr = true;
-    }
-  } else if (postFix[0] === "argumentList") {
-    toWrap = ["dynamicFunctionInvocationExpr", ["functionItem", toWrap]].concat(postFix[1].length ? [["arguments"].concat(postFix[1])] : []);
-  }
-});
 
-var lookups = [];
-var predicates = [];
-postfixExpr.forEach(function (postFix) {
-  if (postFix[0] === "predicate") {
-    // Double wrap sequenceExpr because the XQueryX tests like it
-    if(toWrap[0] === "sequenceExpr" && toWrap.length > 2) {
+function flushFilters() {
+  flushPredicates();
+  if(filters.length !== 0) {
+    if(toWrap[0] === "sequenceExpr") {
+      // Double wrap sequenceExpr because the XQueryX tests like it
       toWrap = ["sequenceExpr", toWrap];
     }
-    predicates.push(postFix[1]);
-  }
-  else if (postFix[0] === "argumentList") {
-    if (predicates.length) {
-      if (predicates.length === 1) {
-        // toWrap = toWrap.concat(["predicate"].concat(predicates));
-        // predicates = [];
-      } else {
-        // Wrap in pathExpr to fit the predicates
-        toWrap = ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicates"].concat(predicates)]];
-        predicates = [];
-      }
-    }
-    if (lookups.length) {
-      if (predicates.length === 1) {
-        // Wrap in pathExpr to fit the lookups
-        toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap], ["predicate"].concat(predicates)].concat(lookups)]];
-        lookups = [];
-        predicates = [];
-      } else {
-        // Wrap in pathExpr to fit the lookups
-        toWrap = ["sequenceExpr", ["pathExpr", ["stepExpr", ["filterExpr", toWrap]].concat(lookups)]];
-        lookups = [];
-      }
-    }
-    toWrap = ["dynamicFunctionInvocationExpr", ["functionItem", toWrap]].concat(postFix[1].length ? [["arguments"].concat(postFix[1])] : []);
-  } else if (postFix[0] === "lookup") {
-    // Double wrap sequenceExpr because the XQueryX tests like it
-    if(toWrap[0] === "sequenceExpr" && toWrap.length > 2) {
-      toWrap = ["sequenceExpr", toWrap];
-    }
-    lookups.push(postFix);
-  }
-});
-
-if (lookups.length) {
-  if (predicates.length) {
-    return [["filterExpr", toWrap]].concat(lookups).concat([["predicate"].concat(predicates)]);
+    toWrap = [["filterExpr", toWrap]].concat(filters);
   } else {
-    return [["filterExpr", toWrap]].concat(lookups);
+    // TODO: Not sure about this
+    toWrap = [["filterExpr", toWrap]];
   }
-} else if (predicates.length) {
-  return [["filterExpr", toWrap], ["predicates"].concat(predicates)];
-} else {
-  return [["filterExpr", toWrap]];
+  filters.length = 0;
 }
+
+postfixExpr.forEach(function (postFix) {
+  if (postFix[0] === "predicate") {
+    predicates.push(postFix[1]);
+  } else if (postFix[0] === "lookup") {
+    flushPredicates();
+    filters.push(postFix);
+  } else if (postFix[0] === "argumentList") {
+    flushFilters();
+    toWrap = ["dynamicFunctionInvocationExpr", ["functionItem", toWrap]].concat(postFix[1].length ? [["arguments"].concat(postFix[1])] : []);
+  }
+});
+
+flushFilters();
+
+return toWrap;
 }
 
 // Expression is not in a step expression, i.e. can not have predicates and does not need filterExpr wrapper
