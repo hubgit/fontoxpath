@@ -77,14 +77,11 @@ class DomFacade {
 			const nodeSilhouette = pointer.unwrap() as ParentNodeSilhouette;
 			childNodes = nodeSilhouette.childNodes;
 			return childNodes.map((childNode, index) => {
-				return {
-					graftAncestor: {
-						graftAncestor: pointer.getGraftAncestor(),
-						offset: index,
-						parent: nodeSilhouette
-					},
-					node: childNode
-				};
+				return new ChildNodePointer(childNode, {
+					graftAncestor: pointer.getGraftAncestor(),
+					offset: index,
+					parent: nodeSilhouette
+				});
 			});
 		}
 		childNodes = this._domFacade['getChildNodes'](pointer.unwrap(), bucket);
@@ -94,14 +91,7 @@ class DomFacade {
 			);
 		}
 		return childNodes.map((childNode, index) => {
-			return {
-				graftAncestor: {
-					graftAncestor: pointer.getGraftAncestor(),
-					offset: index,
-					parent: pointer.unwrap()
-				},
-				node: childNode
-			};
+			return new ChildNodePointer(childNode, pointer.getGraftAncestor());
 		});
 	}
 

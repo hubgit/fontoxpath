@@ -1,15 +1,21 @@
 import * as chai from 'chai';
 import * as slimdom from 'slimdom';
 
-import { evaluateXPath, evaluateXPathToBoolean, evaluateXPathToFirstNode } from 'fontoxpath';
+import {
+	evaluateXPath,
+	evaluateXPathToBoolean,
+	evaluateXPathToFirstNode,
+	evaluateXPathToNodes,
+	evaluateXPathToString
+} from 'fontoxpath';
 import evaluateXPathToAsyncSingleton from 'test-helpers/evaluateXPathToAsyncSingleton';
 
-let documentNode;
-beforeEach(() => {
-	documentNode = new slimdom.Document();
-});
-
 describe('ElementConstructor', () => {
+	let documentNode;
+	beforeEach(() => {
+		documentNode = new slimdom.Document();
+	});
+
 	it('can create an element', () => {
 		chai.assert.equal(
 			evaluateXPathToFirstNode(
@@ -194,26 +200,71 @@ describe('ElementConstructor', () => {
 	});
 
 	it.only('clones nodes when it is needed', () => {
+		const a = documentNode.createElement('a');
+		const b = documentNode.createElement('b');
+		a.appendChild(b);
+		documentNode.appendChild(a);
+
+		// chai.assert.isFalse(
+		// 	evaluateXPathToBoolean(
+		// 		`let $bb := a/b[1]
+		// 		return <c>{$bb}</c>/b[1] is a/b[1]`,
+		// 		documentNode,
+		// 		undefined,
+		// 		{},
+		// 		{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+		// 	),
+		// 	'clone node b.'
+		// );
+
+		// chai.assert.isTrue(
+		// 	evaluateXPathToBoolean(
+		// 		`let $bb := a/b[1]
+		// 		return $bb is a/b[1]`,
+		// 		documentNode,
+		// 		undefined,
+		// 		{},
+		// 		{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+		// 	),
+		// 	'does not clone node b.'
+		// );
+
 		chai.assert.isTrue(
 			evaluateXPathToBoolean(
-				`let $t := xml/title[1]
-				return $t is xml/title[1]`,
-				documentNode,
+				`. is ./parent::*/child::*[1]`,
+				b,
 				undefined,
 				{},
 				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
-			)
+			),
+			'The node b is the first child of its parent.'
+		);
+	});
+
+	it('returns data of the node', () => {
+		const title = documentNode.createElement('title');
+		const textNode = documentNode.createTextNode('Hello World!');
+		title.appendChild(textNode);
+		documentNode.appendChild(title);
+
+		const asd = evaluateXPathToString(
+			`string(.)`,
+			title,
+			undefined,
+			{},
+			{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
 		);
 
-		chai.assert.isFalse(
-			evaluateXPathToBoolean(
-				`let $t := xml/title[1]
-				return  <b>{$t}</b>/title[1] is xml/title[1]`,
-				documentNode,
+		chai.assert.equal(
+			evaluateXPathToString(
+				`string(.)`,
+				title,
 				undefined,
 				{},
 				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
-			)
+			),
+			'Hello World!',
+			'Returns "Hello World!"'
 		);
 	});
 

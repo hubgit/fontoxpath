@@ -1,5 +1,6 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 
+import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
 import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import DynamicContext from '../DynamicContext';
@@ -30,7 +31,8 @@ class AbsolutePathExpression extends Expression {
 		const node = dynamicContext.contextItem.value;
 		const domFacade = executionParameters.domFacade;
 		const documentNode =
-			domFacade.getNodeType(node) === node.DOCUMENT_NODE ? node : node.ownerDocument;
+			domFacade.getNodeType(node) === NODE_TYPES.DOCUMENT_NODE ? node : node.ownerDocument;
+		// TODO ownerDocument??
 		// Assume this is the start, so only one node
 		const contextSequence = sequenceFactory.singleton(
 			createPointerValue(documentNode, domFacade)

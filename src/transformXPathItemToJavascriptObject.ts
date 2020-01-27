@@ -133,6 +133,7 @@ export default function transformXPathItemToJavascriptObject(value: Value): IAsy
 		case 'comment()':
 			return {
 				next: () => ready(value.value.unwrap())
+				// TODO: use createDomAndGetActualNode here
 			};
 
 		default:

@@ -65,7 +65,7 @@ const fnNodeName: FunctionDefinitionType = (
 			case NODE_TYPES.ELEMENT_NODE:
 			case NODE_TYPES.ATTRIBUTE_NODE:
 				// element or attribute
-				pointer = pointer as AttributeNodePointer | ElementNodePointer;
+				const attrOrElPointer = pointer as AttributeNodePointer | ElementNodePointer;
 				return sequenceFactory.singleton(
 					createAtomicValue(
 						new QName(

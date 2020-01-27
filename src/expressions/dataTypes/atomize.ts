@@ -1,11 +1,11 @@
 import createAtomicValue from './createAtomicValue';
 import isSubtypeOf from './isSubtypeOf';
 
+import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
+import DomFacade from '../../domFacade/DomFacade';
 import ExecutionParameters from '../ExecutionParameters';
 import AtomicValue from './AtomicValue';
 import Value from './Value';
-
-const TEXT_NODE = 3;
 
 export default function atomize(
 	value: Value,
@@ -26,46 +26,46 @@ export default function atomize(
 		return value;
 	}
 
+	const domFacade: DomFacade = executionParameters.domFacade;
+
 	if (isSubtypeOf(value.type, 'node()')) {
-		const /** Node */ node = value.value;
+		const /** Node */ pointer = value.value;
 
 		// TODO: Mix in types, by default get string value
 		if (isSubtypeOf(value.type, 'attribute()')) {
-			return createAtomicValue(node.value, 'xs:untypedAtomic');
+			return createAtomicValue(domFacade.getData(pointer), 'xs:untypedAtomic');
 		}
 
 		// Text nodes and documents should return their text, as untyped atomic
 		if (isSubtypeOf(value.type, 'text()')) {
-			return createAtomicValue(
-				executionParameters.domFacade.getData(node),
-				'xs:untypedAtomic'
-			);
+			return createAtomicValue(domFacade.getData(pointer), 'xs:untypedAtomic');
 		}
 		// comments and PIs are string
 		if (
 			isSubtypeOf(value.type, 'comment()') ||
 			isSubtypeOf(value.type, 'processing-instruction()')
 		) {
-			return createAtomicValue(executionParameters.domFacade.getData(node), 'xs:string');
+			return createAtomicValue(domFacade.getData(pointer), 'xs:string');
 		}
 
 		// This is an element or a document node. Because we do not know the specific type of this element.
 		// Documents should always be an untypedAtomic, of elements, we do not know the type, so they are untypedAtomic too
 		const allTextNodes = [];
 		(function getTextNodes(aNode) {
-			if (aNode.nodeType === TEXT_NODE || aNode.nodeType === 4) {
+			if (
+				domFacade.getNodeType(aNode) === NODE_TYPES.TEXT_NODE ||
+				domFacade.getNodeType(aNode) === NODE_TYPES.CDATA_SECTION_NODE
+			) {
 				allTextNodes.push(aNode);
 				return;
 			}
-			executionParameters.domFacade
-				.getChildNodes(aNode, null)
-				.forEach(childNode => getTextNodes(childNode));
-		})(node);
+			domFacade.getChildNodes(aNode, null).forEach(childNode => getTextNodes(childNode));
+		})(pointer);
 
 		return createAtomicValue(
 			allTextNodes
 				.map(textNode => {
-					return executionParameters.domFacade.getData(textNode);
+					return domFacade.getData(textNode);
 				})
 				.join(''),
 			'xs:untypedAtomic'

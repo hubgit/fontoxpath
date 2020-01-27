@@ -1,6 +1,8 @@
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
+
 export const errXQTY0024 = (node, domFacade) => {
 	const nodeString =
-		domFacade.getNodeType(node) === node.ATTRIBUTE_NODE
+		domFacade.getNodeType(node) === NODE_TYPES.ATTRIBUTE_NODE
 			? `${domFacade.getNodeName(node)}="${domFacade.getData(node)}"`
 			: node.outerHTML;
 	return new Error(

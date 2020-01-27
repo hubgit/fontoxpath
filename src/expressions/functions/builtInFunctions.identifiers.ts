@@ -4,6 +4,7 @@ import sequenceFactory from '../dataTypes/sequenceFactory';
 
 import { FUNCTIONS_NAMESPACE_URI } from '../staticallyKnownNamespaces';
 
+import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
 import FunctionDefinitionType from './FunctionDefinitionType';
 
 function findDescendants(domFacade, node, isMatch) {
@@ -39,13 +40,14 @@ const fnId: FunctionDefinitionType = function(
 			return byId;
 		}, Object.create(null));
 	const documentNode =
-		targetNodeValue.value.nodeType === targetNodeValue.value.DOCUMENT_NODE
+		domFacade.getNodeType(targetNodeValue.value) === NODE_TYPES.DOCUMENT_NODE
 			? targetNodeValue.value
 			: targetNodeValue.value.ownerDocument;
+	// TODO: Check how to get ownerDocument
 
 	const matchingNodes = findDescendants(domFacade, documentNode, node => {
 		// TODO: use the is-id property of attributes / elements
-		if (domFacade.getNodeType(node) !== node.ELEMENT_NODE) {
+		if (domFacade.getNodeType(node) !== NODE_TYPES.ELEMENT_NODE) {
 			return false;
 		}
 		const idAttribute = domFacade.getAttribute(node, 'id');
@@ -80,14 +82,15 @@ const fnIdref: FunctionDefinitionType = function(
 		return byId;
 	}, Object.create(null));
 	const documentNode =
-		targetNodeValue.value.nodeType === targetNodeValue.value.DOCUMENT_NODE
+		domFacade.getNodeType(targetNodeValue.value) === NODE_TYPES.DOCUMENT_NODE
 			? targetNodeValue.value
 			: targetNodeValue.value.ownerDocument;
+	//TODO ownerDocument??
 
 	// TODO: Index idrefs to optimize this lookup
 	const matchingNodes = findDescendants(domFacade, documentNode, function(node) {
 		// TODO: use the is-idrefs property of attributes / elements
-		if (domFacade.getNodeType(node) !== node.ELEMENT_NODE) {
+		if (domFacade.getNodeType(node) !== NODE_TYPES.ELEMENT_NODE) {
 			return false;
 		}
 		const idAttribute = domFacade.getAttribute(node, 'idref');

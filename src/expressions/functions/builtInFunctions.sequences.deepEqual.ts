@@ -17,6 +17,7 @@ import {
 	ready
 } from '../util/iterators';
 
+import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
 import ArrayValue from '../dataTypes/ArrayValue';
 import MapValue from '../dataTypes/MapValue';
 import Value from '../dataTypes/Value';
@@ -62,7 +63,7 @@ function asyncGenerateEvery<T>(
 
 function filterElementAndTextNodes(node, domFacade) {
 	const nodeType = domFacade.getNodeType(node);
-	return nodeType === node.ELEMENT_NODE || nodeType === node.TEXT_NODE;
+	return nodeType === NODE_TYPES.ELEMENT_NODE || nodeType === NODE_TYPES.TEXT_NODE;
 }
 
 function anyAtomicTypeDeepEqual(

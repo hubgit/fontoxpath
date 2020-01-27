@@ -3,6 +3,7 @@ import ISequence from '../../dataTypes/ISequence';
 import isSubtypeOf from '../../dataTypes/isSubtypeOf';
 import sequenceFactory from '../../dataTypes/sequenceFactory';
 import zipSingleton from '../../util/zipSingleton';
+import arePointersEqual from './arePointersEqual';
 
 export default function nodeCompare(
 	operator: string,
@@ -30,7 +31,20 @@ export default function nodeCompare(
 						}
 						switch (operator) {
 							case 'isOp':
-								return first === second
+								let asd = false;
+								if (
+									first.type === second.type &&
+									(first.type === 'attribute()' ||
+										first.type === 'node()' ||
+										first.type === 'element()' ||
+										first.type === 'document()' ||
+										first.type === 'text()' ||
+										first.type === 'processing-instruction()' ||
+										first.type === 'comment()')
+								) {
+									asd = arePointersEqual(first.value, second.value);
+								}
+								return asd || first === second
 									? sequenceFactory.singletonTrueSequence()
 									: sequenceFactory.singletonFalseSequence();
 

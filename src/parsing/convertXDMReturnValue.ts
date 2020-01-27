@@ -1,8 +1,18 @@
+import { domFacade } from 'fontoxpath';
+import DomFacade from 'fontoxpath/domFacade/DomFacade';
 import {
+	AttributeNodePointer,
+	ChildNodePointer,
+	CommentNodePointer,
 	CommentNodeSilhouette,
+	ElementNodePointer,
 	ElementNodeSilhouette,
+	NodePointer,
 	NodeSilhouette,
+	Pointer,
+	ProcessingInstructionNodePointer,
 	ProcessingInstructionNodeSilhouette,
+	TextNodePointer,
 	TextNodeSilhouette
 } from '../domClone/Pointer';
 import { NODE_TYPES } from '../domFacade/ConcreteNode';
@@ -22,52 +32,86 @@ import transformXPathItemToJavascriptObject, {
 } from '../transformXPathItemToJavascriptObject';
 import { Node } from '../types/Types';
 
-const isNodeSilhouette = node => node.isSilhouette;
-
-function createNewNode(node: NodeSilhouette | Node, executionParameters: ExecutionParameters) {
+function createNewNode(pointer: NodePointer, executionParameters: ExecutionParameters) {
 	const documentWriter = executionParameters.documentWriter;
 	const nodesFactory = executionParameters.nodesFactory;
+	const domFacade: DomFacade = executionParameters.domFacade;
 
-	if (isNodeSilhouette(node)) {
-		switch (node.nodeType) {
+	if (pointer.isSilhouette()) {
+		switch (domFacade.getNodeType(pointer)) {
 			case NODE_TYPES.COMMENT_NODE:
-				const commentNodeSilhouette = node as CommentNodeSilhouette;
-				return nodesFactory.createComment(commentNodeSilhouette.data);
+				return nodesFactory.createComment(domFacade.getData(pointer as CommentNodePointer));
 			case NODE_TYPES.ELEMENT_NODE:
-				const elementNodeSilhouette = node as ElementNodeSilhouette;
+				const namespaceURI = domFacade.getNamespaceURI(pointer as ElementNodePointer);
+				const prefix = domFacade.getPrefix(pointer as ElementNodePointer);
+				const localName = domFacade.getLocalName(pointer as ElementNodePointer);
 				const element = nodesFactory.createElementNS(
-					elementNodeSilhouette.namespaceURI,
-					elementNodeSilhouette.prefix
-						? elementNodeSilhouette.prefix + ':' + elementNodeSilhouette.localName
-						: elementNodeSilhouette.localName
+					namespaceURI,
+					prefix ? prefix + ':' + localName : localName
 				);
-				elementNodeSilhouette.childNodes.forEach(childNode => {
-					const newChildNode = createNewNode(childNode, executionParameters);
-					documentWriter.insertBefore(element, newChildNode, null);
-				});
-				elementNodeSilhouette.attributes.forEach(attribute => {
-					documentWriter.setAttributeNS(
-						element,
-						attribute.namespaceURI,
-						attribute.name,
-						attribute.value
-					);
-				});
+				domFacade
+					.getChildNodes(pointer as ElementNodePointer)
+					.forEach((childPointer, childIndex) => {
+						const newChildNode = createNewNode(childPointer, executionParameters);
+						documentWriter.insertBefore(element, newChildNode, null);
+					});
+				domFacade
+					.getAllAttributes(pointer as ElementNodePointer)
+					.forEach((attributePointer: AttributeNodePointer) => {
+						documentWriter.setAttributeNS(
+							element,
+							domFacade.getNamespaceURI(attributePointer),
+							domFacade.getNodeName(attributePointer),
+							domFacade.getData(attributePointer)
+						);
+					});
 				return element;
 			case NODE_TYPES.PROCESSING_INSTRUCTION_NODE:
-				const piSilhouette = node as ProcessingInstructionNodeSilhouette;
 				return nodesFactory.createProcessingInstruction(
-					piSilhouette.target,
-					piSilhouette.data
+					domFacade.getTarget(pointer as ProcessingInstructionNodePointer),
+					domFacade.getData(pointer as ProcessingInstructionNodePointer)
 				);
 			case NODE_TYPES.TEXT_NODE:
-				const textNodeSilhouette = node as TextNodeSilhouette;
-				return nodesFactory.createComment(textNodeSilhouette.data);
+				return nodesFactory.createComment(domFacade.getData(pointer as TextNodePointer));
 		}
 	} else {
 		// we need to set a rule to create clone or use same node.
-		return (node as any).cloneNode(true);
+		const graftAncestor = pointer.getGraftAncestor();
+		const node = pointer.unwrap();
+		if (graftAncestor) {
+			return (node as any).cloneNode(true);
+		} else {
+			return node;
+		}
 	}
+}
+
+function getRootPointer(pointer, pathToNodeFromRoot, domFacade) {
+	const parentPointer = domFacade.getParentNode(pointer);
+	if (parentPointer === null) {
+		return pointer;
+	}
+	const children = domFacade.getChildNodes(parentPointer);
+	pathToNodeFromRoot.push(children.indexOf(pointer));
+	return getRootPointer(parentPointer, pathToNodeFromRoot, domFacade);
+}
+function getNodeFromRoot(rootPointer, pathToNodeFromRoot, domFacade) {
+	if (pathToNodeFromRoot[0] === undefined) {
+		return rootPointer.unwrap();
+	}
+	const children = domFacade.getChildNodes(rootPointer);
+	return getNodeFromRoot(children[pathToNodeFromRoot.pop()], pathToNodeFromRoot, domFacade);
+}
+const newRootPointerByRootPointer = new WeakMap();
+function createDomAndGetActualNode(pointer: NodePointer, executionParameters: ExecutionParameters) {
+	const pathToNodeFromRoot = [];
+	const rootPointer = getRootPointer(pointer, pathToNodeFromRoot, executionParameters.domFacade);
+	let newRootPointer = newRootPointerByRootPointer.get(rootPointer);
+	if (!newRootPointer) {
+		newRootPointer = new Pointer(createNewNode(rootPointer, executionParameters), null);
+		newRootPointerByRootPointer.set(rootPointer, newRootPointer);
+	}
+	return getNodeFromRoot(newRootPointer, pathToNodeFromRoot, domFacade);
 }
 
 /**
@@ -179,8 +223,9 @@ export default function convertXDMReturnValue<
 			// over here: unravel pointers. if they point to actual nodes:return them. if they point
 			// to lightweights, really make them, if they point to clones, clone them etc
 
-			const node = first.value.value.node;
-			return createNewNode(node, executionParameters);
+			// const node = first.value.value.node;
+			// return createNewNode(first.value.value, executionParameters);
+			return createDomAndGetActualNode(first.value.value, executionParameters);
 		}
 
 		case ReturnType.NODES: {
@@ -199,8 +244,9 @@ export default function convertXDMReturnValue<
 				);
 			}
 			return allResults.value.map(nodeValue => {
-				const node = nodeValue.value.node;
-				return createNewNode(node, executionParameters);
+				// const node = nodeValue.value.node;
+				// return createNewNode(nodeValue.value, executionParameters);
+				createDomAndGetActualNode(nodeValue.value, executionParameters);
 			});
 		}
 
