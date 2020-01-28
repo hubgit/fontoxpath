@@ -11,16 +11,61 @@ import convertXDMReturnValue, { IReturnTypes, ReturnType } from './parsing/conve
 import { Node } from './types/Types';
 
 /**
+ * Describes additional options for evaluateXPath and related functions
+ *
  * @public
  */
 export type Options = {
+	/**
+	 * The 'context' of this expression. This can be used for example to pass information around
+	 * from the call to 'evaluateXPath' to external functions.
+	 *
+	 * Note: not the same as the 'contextItem' in evaluateXPath.
+	 *
+	 * Defaults to `undefined`
+	 */
 	currentContext?: any;
+	/**
+	 * Setting 'debug' to true introduces better stack traces at the cost of some performance. Set
+	 * this to `true` when debugging and to `false` when deploying this.
+	 *
+	 * Defaults to `false`
+	 */
 	debug?: boolean;
+	/**
+	 * Used to move nodes around. This is normally used to create a DOM tree. Default to using
+	 * methods like 'appendChild' on the nodes that are to be moved around.
+	 *
+	 * Observe that this will only be used for _new_ subtrees, existing nodes will only be mutated
+	 * using XQuery Update Facility when calling the {@link executePendingUpdateList} function
+	 */
 	documentWriter?: IDocumentWriter;
+	/**
+	 * Disable the selector cache, causing the parser to be used for every new selector
+	 *
+	 * @internal
+	 */
 	disableCache?: boolean;
+	/**
+	 * The Language used in the expression. Defaults to XPath 3.1
+	 */
 	language?: Language;
+	/**
+	 * Additional modules to import. Register modules with {@link registerXQueryModule}. Defaults to no
+	 * modules being imported
+	 */
 	moduleImports?: { [s: string]: string };
-	namespaceResolver?: (s: string) => string | null;
+	/**
+	 * Provides a mapping from prefixes used in the expression to their namespace uris.
+	 *
+	 * Can be an Object or a function. This is used to determine whether a cached expression can be
+	 * used: the semantics of a selector like `self::p` change when using a different namespace
+	 * resolver. Take care to not change the object, it is assumed to be frozen.
+	 */
+	namespaceResolver?: { [s: string]: string | null } | ((s: string) => string | null);
+	/**
+	 * Used to create new elements. Defaults to the ownerDocument of the passed context node if absent
+	 */
 	nodesFactory?: INodesFactory;
 };
 
