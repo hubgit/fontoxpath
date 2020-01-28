@@ -17,7 +17,7 @@ import {
 	ready
 } from '../util/iterators';
 
-import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import ArrayValue from '../dataTypes/ArrayValue';
 import MapValue from '../dataTypes/MapValue';
 import Value from '../dataTypes/Value';

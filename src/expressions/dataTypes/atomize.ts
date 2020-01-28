@@ -1,7 +1,7 @@
 import createAtomicValue from './createAtomicValue';
 import isSubtypeOf from './isSubtypeOf';
 
-import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import DomFacade from '../../domFacade/DomFacade';
 import ExecutionParameters from '../ExecutionParameters';
 import AtomicValue from './AtomicValue';

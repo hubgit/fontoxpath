@@ -1,21 +1,4 @@
-import { domFacade } from 'fontoxpath';
-import DomFacade from 'fontoxpath/domFacade/DomFacade';
-import {
-	AttributeNodePointer,
-	ChildNodePointer,
-	CommentNodePointer,
-	CommentNodeSilhouette,
-	ElementNodePointer,
-	ElementNodeSilhouette,
-	NodePointer,
-	NodeSilhouette,
-	Pointer,
-	ProcessingInstructionNodePointer,
-	ProcessingInstructionNodeSilhouette,
-	TextNodePointer,
-	TextNodeSilhouette
-} from '../domClone/Pointer';
-import { NODE_TYPES } from '../domFacade/ConcreteNode';
+import createDomAndGetActualNode from '../domClone/createDomAndGetActualNode';
 import { printAndRethrowError } from '../evaluationUtils/printAndRethrowError';
 import ArrayValue from '../expressions/dataTypes/ArrayValue';
 import atomize from '../expressions/dataTypes/atomize';
@@ -31,88 +14,6 @@ import transformXPathItemToJavascriptObject, {
 	transformMapToObject
 } from '../transformXPathItemToJavascriptObject';
 import { Node } from '../types/Types';
-
-function createNewNode(pointer: NodePointer, executionParameters: ExecutionParameters) {
-	const documentWriter = executionParameters.documentWriter;
-	const nodesFactory = executionParameters.nodesFactory;
-	const domFacade: DomFacade = executionParameters.domFacade;
-
-	if (pointer.isSilhouette()) {
-		switch (domFacade.getNodeType(pointer)) {
-			case NODE_TYPES.COMMENT_NODE:
-				return nodesFactory.createComment(domFacade.getData(pointer as CommentNodePointer));
-			case NODE_TYPES.ELEMENT_NODE:
-				const namespaceURI = domFacade.getNamespaceURI(pointer as ElementNodePointer);
-				const prefix = domFacade.getPrefix(pointer as ElementNodePointer);
-				const localName = domFacade.getLocalName(pointer as ElementNodePointer);
-				const element = nodesFactory.createElementNS(
-					namespaceURI,
-					prefix ? prefix + ':' + localName : localName
-				);
-				domFacade
-					.getChildNodes(pointer as ElementNodePointer)
-					.forEach((childPointer, childIndex) => {
-						const newChildNode = createNewNode(childPointer, executionParameters);
-						documentWriter.insertBefore(element, newChildNode, null);
-					});
-				domFacade
-					.getAllAttributes(pointer as ElementNodePointer)
-					.forEach((attributePointer: AttributeNodePointer) => {
-						documentWriter.setAttributeNS(
-							element,
-							domFacade.getNamespaceURI(attributePointer),
-							domFacade.getNodeName(attributePointer),
-							domFacade.getData(attributePointer)
-						);
-					});
-				return element;
-			case NODE_TYPES.PROCESSING_INSTRUCTION_NODE:
-				return nodesFactory.createProcessingInstruction(
-					domFacade.getTarget(pointer as ProcessingInstructionNodePointer),
-					domFacade.getData(pointer as ProcessingInstructionNodePointer)
-				);
-			case NODE_TYPES.TEXT_NODE:
-				return nodesFactory.createComment(domFacade.getData(pointer as TextNodePointer));
-		}
-	} else {
-		// we need to set a rule to create clone or use same node.
-		const graftAncestor = pointer.getGraftAncestor();
-		const node = pointer.unwrap();
-		if (graftAncestor) {
-			return (node as any).cloneNode(true);
-		} else {
-			return node;
-		}
-	}
-}
-
-function getRootPointer(pointer, pathToNodeFromRoot, domFacade) {
-	const parentPointer = domFacade.getParentNode(pointer);
-	if (parentPointer === null) {
-		return pointer;
-	}
-	const children = domFacade.getChildNodes(parentPointer);
-	pathToNodeFromRoot.push(children.indexOf(pointer));
-	return getRootPointer(parentPointer, pathToNodeFromRoot, domFacade);
-}
-function getNodeFromRoot(rootPointer, pathToNodeFromRoot, domFacade) {
-	if (pathToNodeFromRoot[0] === undefined) {
-		return rootPointer.unwrap();
-	}
-	const children = domFacade.getChildNodes(rootPointer);
-	return getNodeFromRoot(children[pathToNodeFromRoot.pop()], pathToNodeFromRoot, domFacade);
-}
-const newRootPointerByRootPointer = new WeakMap();
-function createDomAndGetActualNode(pointer: NodePointer, executionParameters: ExecutionParameters) {
-	const pathToNodeFromRoot = [];
-	const rootPointer = getRootPointer(pointer, pathToNodeFromRoot, executionParameters.domFacade);
-	let newRootPointer = newRootPointerByRootPointer.get(rootPointer);
-	if (!newRootPointer) {
-		newRootPointer = new Pointer(createNewNode(rootPointer, executionParameters), null);
-		newRootPointerByRootPointer.set(rootPointer, newRootPointer);
-	}
-	return getNodeFromRoot(newRootPointer, pathToNodeFromRoot, domFacade);
-}
 
 /**
  * @public
@@ -223,9 +124,10 @@ export default function convertXDMReturnValue<
 			// over here: unravel pointers. if they point to actual nodes:return them. if they point
 			// to lightweights, really make them, if they point to clones, clone them etc
 
-			// const node = first.value.value.node;
-			// return createNewNode(first.value.value, executionParameters);
-			return createDomAndGetActualNode(first.value.value, executionParameters);
+			return createDomAndGetActualNode(
+				first.value.value,
+				executionParameters
+			) as IReturnTypes<TNode>[TReturnType];
 		}
 
 		case ReturnType.NODES: {
@@ -244,10 +146,9 @@ export default function convertXDMReturnValue<
 				);
 			}
 			return allResults.value.map(nodeValue => {
-				// const node = nodeValue.value.node;
-				// return createNewNode(nodeValue.value, executionParameters);
-				createDomAndGetActualNode(nodeValue.value, executionParameters);
-			});
+				const asd = createDomAndGetActualNode(nodeValue.value, executionParameters);
+				return asd as unknown;
+			}) as IReturnTypes<TNode>[TReturnType];
 		}
 
 		case ReturnType.MAP: {
@@ -263,7 +164,10 @@ export default function convertXDMReturnValue<
 			if (!isSubtypeOf(first.type, 'map(*)')) {
 				throw new Error('Expected XPath ' + expression + ' to resolve to a map');
 			}
-			const transformedMap = transformMapToObject(first as MapValue).next(IterationHint.NONE);
+			const transformedMap = transformMapToObject(
+				first as MapValue,
+				executionParameters
+			).next(IterationHint.NONE);
 			if (!transformedMap.ready) {
 				throw new Error(
 					'Expected XPath ' + expression + ' to synchronously resolve to a map'
@@ -285,9 +189,10 @@ export default function convertXDMReturnValue<
 			if (!isSubtypeOf(first.type, 'array(*)')) {
 				throw new Error('Expected XPath ' + expression + ' to resolve to an array');
 			}
-			const transformedArray = transformArrayToArray(first as ArrayValue).next(
-				IterationHint.NONE
-			);
+			const transformedArray = transformArrayToArray(
+				first as ArrayValue,
+				executionParameters
+			).next(IterationHint.NONE);
 			if (!transformedArray.ready) {
 				throw new Error(
 					'Expected XPath ' + expression + ' to synchronously resolve to a map'
@@ -325,7 +230,8 @@ export default function convertXDMReturnValue<
 							return value.promise.then(getNextResult);
 						}
 						transformedValueGenerator = transformXPathItemToJavascriptObject(
-							value.value
+							value.value,
+							executionParameters
 						);
 					}
 					const transformedValue = transformedValueGenerator.next();
@@ -381,9 +287,10 @@ export default function convertXDMReturnValue<
 			if (allValues.value.length === 1) {
 				const first = allValues.value[0];
 				if (isSubtypeOf(first.type, 'array(*)')) {
-					const transformedArray = transformArrayToArray(first as ArrayValue).next(
-						IterationHint.NONE
-					);
+					const transformedArray = transformArrayToArray(
+						first as ArrayValue,
+						executionParameters
+					).next(IterationHint.NONE);
 					if (!transformedArray.ready) {
 						throw new Error(
 							'Expected XPath ' + expression + ' to synchronously resolve to an array'
@@ -392,9 +299,10 @@ export default function convertXDMReturnValue<
 					return transformedArray.value;
 				}
 				if (isSubtypeOf(first.type, 'map(*)')) {
-					const transformedMap = transformMapToObject(first as MapValue).next(
-						IterationHint.NONE
-					);
+					const transformedMap = transformMapToObject(
+						first as MapValue,
+						executionParameters
+					).next(IterationHint.NONE);
 					if (!transformedMap.ready) {
 						throw new Error(
 							'Expected XPath ' + expression + ' to synchronously resolve to a map'

@@ -32,7 +32,8 @@ class ParentAxis extends Expression {
 		const parentNodeValue = createPointerValue(parentNode, executionParameters.domFacade);
 		const nodeIsMatch = this._parentExpression.evaluateToBoolean(
 			dynamicContext,
-			parentNodeValue
+			parentNodeValue,
+			executionParameters
 		);
 		if (!nodeIsMatch) {
 			return sequenceFactory.empty();

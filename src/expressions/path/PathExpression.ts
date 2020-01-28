@@ -8,6 +8,7 @@ import sequenceFactory from '../dataTypes/sequenceFactory';
 import Value from '../dataTypes/Value';
 import DynamicContext from '../DynamicContext';
 import ExecutionParameters from '../ExecutionParameters';
+import arePointersEqual from '../operators/compares/arePointersEqual';
 import Specificity from '../Specificity';
 import createSingleValueIterator from '../util/createSingleValueIterator';
 import {
@@ -27,7 +28,8 @@ function isSameNodeValue(a: Value, b: Value) {
 		return false;
 	}
 
-	return a.value === b.value;
+	return arePointersEqual(a.value, b.value);
+	// a.value === b.value;
 }
 
 function concatSortedSequences(sequences: IAsyncIterator<ISequence>): ISequence {

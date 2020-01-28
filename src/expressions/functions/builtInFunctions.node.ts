@@ -4,8 +4,7 @@ import {
 	ElementNodePointer,
 	NodePointer,
 	ParentNodePointer,
-	ProcessingInstructionNodePointer,
-	ProcessingInstructionNodeSilhouette
+	ProcessingInstructionNodePointer
 } from '../../domClone/Pointer';
 import { ConcreteProcessingInstructionNode, NODE_TYPES } from '../../domFacade/ConcreteNode';
 import DomFacade from '../../domFacade/DomFacade';
@@ -21,6 +20,7 @@ import Value from '../dataTypes/Value';
 import QName from '../dataTypes/valueTypes/QName';
 import DynamicContext from '../DynamicContext';
 import ExecutionParameters from '../ExecutionParameters';
+import arePointersEqual from '../operators/compares/arePointersEqual';
 import { FUNCTIONS_NAMESPACE_URI } from '../staticallyKnownNamespaces';
 import StaticContext from '../StaticContext';
 import { IterationHint } from '../util/iterators';
@@ -60,7 +60,7 @@ const fnNodeName: FunctionDefinitionType = (
 			return sequenceFactory.empty();
 		}
 		const domFacade = executionParameters.domFacade;
-		let pointer: NodePointer = pointerValue.value;
+		const pointer: NodePointer = pointerValue.value;
 		switch (domFacade.getNodeType(pointer)) {
 			case NODE_TYPES.ELEMENT_NODE:
 			case NODE_TYPES.ATTRIBUTE_NODE:
@@ -311,10 +311,10 @@ const fnLocalName: FunctionDefinitionType = (
 
 function contains(domFacade: DomFacade, ancestor: NodePointer, descendant: NodePointer): boolean {
 	if (domFacade.getNodeType(ancestor) === NODE_TYPES.ATTRIBUTE_NODE) {
-		return ancestor === descendant;
+		return arePointersEqual(ancestor, descendant);
 	}
 	while (descendant) {
-		if (ancestor === descendant) {
+		if (arePointersEqual(ancestor, descendant)) {
 			return true;
 		}
 		if (domFacade.getNodeType(descendant) === NODE_TYPES.DOCUMENT_NODE) {

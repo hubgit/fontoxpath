@@ -31,20 +31,16 @@ export default function nodeCompare(
 						}
 						switch (operator) {
 							case 'isOp':
-								let asd = false;
-								if (
-									first.type === second.type &&
-									(first.type === 'attribute()' ||
-										first.type === 'node()' ||
-										first.type === 'element()' ||
-										first.type === 'document()' ||
-										first.type === 'text()' ||
-										first.type === 'processing-instruction()' ||
-										first.type === 'comment()')
-								) {
-									asd = arePointersEqual(first.value, second.value);
-								}
-								return asd || first === second
+								return first === second ||
+									(first.type === second.type &&
+										(first.type === 'attribute()' ||
+											first.type === 'node()' ||
+											first.type === 'element()' ||
+											first.type === 'document()' ||
+											first.type === 'text()' ||
+											first.type === 'processing-instruction()' ||
+											first.type === 'comment()') &&
+										arePointersEqual(first.value, second.value))
 									? sequenceFactory.singletonTrueSequence()
 									: sequenceFactory.singletonFalseSequence();
 

@@ -1,7 +1,7 @@
 import { AttributeNodePointer, ChildNodePointer, NodePointer } from '../../domClone/Pointer';
 import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import DomFacade from '../../domFacade/DomFacade';
-import IDomFacade from '../../domFacade/IDomFacade';
+import arePointersEqual from '../operators/compares/arePointersEqual';
 import isSubtypeOf from './isSubtypeOf';
 import Value from './Value';
 
@@ -19,7 +19,7 @@ function compareSiblingElements(
 	node1: NodePointer,
 	node2: NodePointer
 ): number {
-	if (node1 === node2) {
+	if (arePointersEqual(node1, node2)) {
 		return 0;
 	}
 
@@ -27,10 +27,10 @@ function compareSiblingElements(
 	const childNodes = domFacade.getChildNodes(parentNode, null);
 	for (let i = 0, l = childNodes.length; i < l; ++i) {
 		const childNode = childNodes[i];
-		if (childNode === node1) {
+		if (arePointersEqual(childNode, node1)) {
 			return -1;
 		}
-		if (childNode === node2) {
+		if (arePointersEqual(childNode, node2)) {
 			return 1;
 		}
 	}
@@ -76,7 +76,7 @@ function compareElements(
 	nodeA: NodePointer,
 	nodeB: NodePointer
 ): number {
-	if (nodeA === nodeB) {
+	if (arePointersEqual(nodeA, nodeB)) {
 		return 0;
 	}
 	const ancestors1 = findAllAncestors(domFacade, nodeA);
@@ -84,7 +84,7 @@ function compareElements(
 	const topAncestor1 = ancestors1[0];
 	const topAncestor2 = ancestors2[0];
 
-	if (topAncestor1 !== topAncestor2) {
+	if (!arePointersEqual(topAncestor1, topAncestor2)) {
 		// Separate trees, use earlier determined tie breakers
 		let index1 = tieBreakerArr.indexOf(topAncestor1);
 		let index2 = tieBreakerArr.indexOf(topAncestor2);
@@ -100,7 +100,7 @@ function compareElements(
 	// Skip common ancestors
 	let i, l;
 	for (i = 0, l = Math.min(ancestors1.length, ancestors2.length); i < l; ++i) {
-		if (ancestors1[i] !== ancestors2[i]) {
+		if (!arePointersEqual(ancestors1[i], ancestors2[i])) {
 			break;
 		}
 	}
@@ -121,21 +121,28 @@ function compareNodePositionsWithTieBreaker(tieBreakerArr, domFacade, node1, nod
 	if (isSubtypeOf(node1.type, 'attribute()') && !isSubtypeOf(node2.type, 'attribute()')) {
 		value1 = domFacade.getParentNode(node1.value);
 		value2 = node2.value;
-		if (value1 === value2) {
+		if (arePointersEqual(value1, value2)) {
 			// Same element, so A
 			return 1;
 		}
 	} else if (isSubtypeOf(node2.type, 'attribute()') && !isSubtypeOf(node1.type, 'attribute()')) {
 		value1 = node1.value;
 		value2 = domFacade.getParentNode(node2.value);
-		if (value1 === value2) {
+		if (arePointersEqual(value1, value2)) {
 			// Same element, so B before A
 			return -1;
 		}
 	} else if (isSubtypeOf(node1.type, 'attribute()') && isSubtypeOf(node2.type, 'attribute()')) {
-		if (domFacade.getParentNode(node2.value) === domFacade.getParentNode(node1.value)) {
+		if (
+			arePointersEqual(
+				domFacade.getParentNode(node2.value),
+				domFacade.getParentNode(node1.value)
+			)
+		) {
 			// Sort on attributes name
-			return node1.value.localName > node2.value.localName ? 1 : -1;
+			return domFacade.getLocalName(node1.value) > domFacade.getLocalName(node2.value)
+				? 1
+				: -1;
 		}
 		value1 = domFacade.getParentNode(node1.value);
 		value2 = domFacade.getParentNode(node2.value);
@@ -183,6 +190,9 @@ export const sortNodeValues = function sortNodeValues(
 			if (i === 0) {
 				return true;
 			}
-			return nodeValue !== sortedNodes[i - 1];
+			return !arePointersEqual(
+				nodeValue.value as NodePointer,
+				sortedNodes[i - 1].value as NodePointer
+			);
 		});
 };

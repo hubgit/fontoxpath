@@ -2,6 +2,7 @@ import { ChildNodePointer, NodePointer, ParentNodePointer } from '../../domClone
 import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import DomFacade from '../../domFacade/DomFacade';
 import createPointerValue from '../dataTypes/createPointerValue';
+import arePointersEqual from '../operators/compares/arePointersEqual';
 import createChildGenerator from './createChildGenerator';
 import { DONE_TOKEN, IterationHint, ready } from './iterators';
 
@@ -42,9 +43,9 @@ export default function createDescendantGenerator(
 					return DONE_TOKEN;
 				}
 
-				if (currentPointer === pointer) {
+				if (arePointersEqual(currentPointer, pointer)) {
 					currentPointer = findDeepestLastDescendant(pointer, domFacade, bucket);
-					if (currentPointer === pointer) {
+					if (arePointersEqual(currentPointer, pointer)) {
 						isDone = true;
 						return DONE_TOKEN;
 					}
@@ -65,7 +66,7 @@ export default function createDescendantGenerator(
 					nodeType === NODE_TYPES.DOCUMENT_NODE
 						? null
 						: domFacade.getParentNode(currentPointer as ChildNodePointer, bucket);
-				if (currentPointer === pointer) {
+				if (arePointersEqual(currentPointer, pointer)) {
 					isDone = true;
 					return DONE_TOKEN;
 				}

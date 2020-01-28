@@ -20,16 +20,18 @@ type DynamicContextAdapter = {
 
 function adaptXPathValueToJavascriptValue(
 	valueSequence: ISequence,
-	sequenceType: string
+	sequenceType: string,
+	executionParameters: ExecutionParameters
 ): any | null | any[] {
 	switch (sequenceType[sequenceType.length - 1]) {
 		case '?':
 			if (valueSequence.isEmpty()) {
 				return null;
 			}
-			return transformXPathItemToJavascriptObject(valueSequence.first()).next(
-				IterationHint.NONE
-			).value;
+			return transformXPathItemToJavascriptObject(
+				valueSequence.first(),
+				executionParameters
+			).next(IterationHint.NONE).value;
 
 		case '*':
 		case '+':
@@ -37,13 +39,16 @@ function adaptXPathValueToJavascriptValue(
 				if (isSubtypeOf(value.type, 'attribute()')) {
 					throw new Error('Cannot pass attribute nodes to custom functions');
 				}
-				return transformXPathItemToJavascriptObject(value).next(IterationHint.NONE).value;
+				return transformXPathItemToJavascriptObject(value, executionParameters).next(
+					IterationHint.NONE
+				).value;
 			});
 
 		default:
-			return transformXPathItemToJavascriptObject(valueSequence.first()).next(
-				IterationHint.NONE
-			).value;
+			return transformXPathItemToJavascriptObject(
+				valueSequence.first(),
+				executionParameters
+			).next(IterationHint.NONE).value;
 	}
 }
 
@@ -104,7 +109,11 @@ export default function registerCustomXPathFunction(
 		args.splice(0, 3);
 
 		const newArguments = args.map(function(argument, index) {
-			return adaptXPathValueToJavascriptValue(argument, signature[index]);
+			return adaptXPathValueToJavascriptValue(
+				argument,
+				signature[index],
+				executionParameters
+			);
 		});
 
 		// Adapt the domFacade into another object to prevent passing everything. The closure compiler might rename some variables otherwise.

@@ -49,7 +49,11 @@ class PrecedingSiblingAxis extends Expression {
 				)
 			)
 			.filter(item => {
-				return this._siblingExpression.evaluateToBoolean(dynamicContext, item);
+				return this._siblingExpression.evaluateToBoolean(
+					dynamicContext,
+					item,
+					executionParameters
+				);
 			});
 	}
 }

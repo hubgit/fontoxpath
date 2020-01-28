@@ -301,6 +301,9 @@ describe('registerCustomXPath', () => {
 			getAttribute(element, attrName) {
 				const attr = element.attributes.find(attr => attr.localName === attrName);
 				return attr.value;
+			},
+			getParentNode(element) {
+				return element.parentNode;
 			}
 		} as unknown) as IDomFacade;
 		registerCustomXPathFunction(

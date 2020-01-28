@@ -12,7 +12,12 @@ import {
 	ProcessingInstructionNodePointer
 } from '../domClone/Pointer';
 import { Attr, CharacterData, Element, Node } from '../types/Types';
-import { ConcreteChildNode, ConcreteParentNode, NODE_TYPES } from './ConcreteNode';
+import {
+	ConcreteAttributeNode,
+	ConcreteChildNode,
+	ConcreteParentNode,
+	NODE_TYPES
+} from './ConcreteNode';
 import IDomFacade from './IDomFacade';
 
 const isNodeSilhouette = node => node.isSilhouette;
@@ -101,6 +106,8 @@ class DomFacade {
 			? this.getNodeType(pointer) === NODE_TYPES.ATTRIBUTE_NODE
 				? (unwrappedNode as AttributeNodeSilhouette).value
 				: (unwrappedNode as CharacterDataNodeSilhouette).data
+			: this.getNodeType(pointer) === NODE_TYPES.ATTRIBUTE_NODE
+			? (unwrappedNode as ConcreteAttributeNode).value
 			: this._domFacade['getData'](unwrappedNode as Attr | CharacterData) || '';
 	}
 
@@ -163,10 +170,6 @@ class DomFacade {
 		return pointer.unwrap().namespaceURI;
 	}
 
-	// public getOwnerDocument(pointer: Node): DocumentNode {
-	// 	return node.ownerDocument;
-	// }
-
 	public getNextSibling(
 		pointer: ChildNodePointer,
 		bucket: string | null = null
@@ -193,11 +196,16 @@ class DomFacade {
 		}
 
 		return nextSibling
-			? new ChildNodePointer(nextSibling, {
-					graftAncestor: graftAncestor.graftAncestor,
-					offset: graftAncestor.offset + 1,
-					parent: graftAncestor.parent
-			  })
+			? new ChildNodePointer(
+					nextSibling,
+					graftAncestor
+						? {
+								graftAncestor: graftAncestor.graftAncestor,
+								offset: graftAncestor.offset + 1,
+								parent: graftAncestor.parent
+						  }
+						: null
+			  )
 			: null;
 	}
 
@@ -280,11 +288,16 @@ class DomFacade {
 		}
 
 		return previousSibling
-			? new ChildNodePointer(previousSibling, {
-					graftAncestor: graftAncestor.graftAncestor,
-					offset: graftAncestor.offset - 1,
-					parent: graftAncestor.parent
-			  })
+			? new ChildNodePointer(
+					previousSibling,
+					graftAncestor
+						? {
+								graftAncestor: graftAncestor.graftAncestor,
+								offset: graftAncestor.offset - 1,
+								parent: graftAncestor.parent
+						  }
+						: null
+			  )
 			: null;
 	}
 

@@ -67,7 +67,11 @@ class AncestorAxis extends Expression {
 				)
 			)
 			.filter(item => {
-				return this._ancestorExpression.evaluateToBoolean(dynamicContext, item);
+				return this._ancestorExpression.evaluateToBoolean(
+					dynamicContext,
+					item,
+					executionParameters
+				);
 			});
 	}
 }

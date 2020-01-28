@@ -199,35 +199,35 @@ describe('ElementConstructor', () => {
 		);
 	});
 
-	it.only('clones nodes when it is needed', () => {
+	it('clones nodes when it is needed', () => {
 		const a = documentNode.createElement('a');
 		const b = documentNode.createElement('b');
 		a.appendChild(b);
 		documentNode.appendChild(a);
 
-		// chai.assert.isFalse(
-		// 	evaluateXPathToBoolean(
-		// 		`let $bb := a/b[1]
-		// 		return <c>{$bb}</c>/b[1] is a/b[1]`,
-		// 		documentNode,
-		// 		undefined,
-		// 		{},
-		// 		{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
-		// 	),
-		// 	'clone node b.'
-		// );
+		chai.assert.isFalse(
+			evaluateXPathToBoolean(
+				`let $bb := a/b[1]
+				return <c>{$bb}</c>/b[1] is a/b[1]`,
+				documentNode,
+				undefined,
+				{},
+				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+			),
+			'clone node b.'
+		);
 
-		// chai.assert.isTrue(
-		// 	evaluateXPathToBoolean(
-		// 		`let $bb := a/b[1]
-		// 		return $bb is a/b[1]`,
-		// 		documentNode,
-		// 		undefined,
-		// 		{},
-		// 		{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
-		// 	),
-		// 	'does not clone node b.'
-		// );
+		chai.assert.isTrue(
+			evaluateXPathToBoolean(
+				`let $bb := a/b[1]
+				return $bb is a/b[1]`,
+				documentNode,
+				undefined,
+				{},
+				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+			),
+			'does not clone node b.'
+		);
 
 		chai.assert.isTrue(
 			evaluateXPathToBoolean(
@@ -246,14 +246,6 @@ describe('ElementConstructor', () => {
 		const textNode = documentNode.createTextNode('Hello World!');
 		title.appendChild(textNode);
 		documentNode.appendChild(title);
-
-		const asd = evaluateXPathToString(
-			`string(.)`,
-			title,
-			undefined,
-			{},
-			{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
-		);
 
 		chai.assert.equal(
 			evaluateXPathToString(

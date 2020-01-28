@@ -15,11 +15,11 @@ class PITest extends TestAbstractExpression {
 		this._target = target;
 	}
 
-	public evaluateToBoolean(_dynamicContext, node) {
+	public evaluateToBoolean(_dynamicContext, node, executionParameters) {
 		// Assume singleton
 		const isMatchingProcessingInstruction =
 			isSubtypeOf(node.type, 'processing-instruction()') &&
-			node.value.target === this._target;
+			executionParameters.domFacade.getTarget(node.value) === this._target;
 		return isMatchingProcessingInstruction;
 	}
 

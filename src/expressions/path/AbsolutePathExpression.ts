@@ -1,6 +1,6 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 
-import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import DynamicContext from '../DynamicContext';
@@ -30,9 +30,17 @@ class AbsolutePathExpression extends Expression {
 		}
 		const node = dynamicContext.contextItem.value;
 		const domFacade = executionParameters.domFacade;
-		const documentNode =
-			domFacade.getNodeType(node) === NODE_TYPES.DOCUMENT_NODE ? node : node.ownerDocument;
-		// TODO ownerDocument??
+
+		let documentNode = node;
+		while (domFacade.getNodeType(documentNode) !== NODE_TYPES.DOCUMENT_NODE) {
+			documentNode = domFacade.getParentNode(documentNode);
+			if (documentNode === null) {
+				throw new Error(
+					'XPDY0050: the root node of the context node is not a document node.'
+				);
+			}
+		}
+
 		// Assume this is the start, so only one node
 		const contextSequence = sequenceFactory.singleton(
 			createPointerValue(documentNode, domFacade)

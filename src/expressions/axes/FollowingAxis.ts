@@ -99,7 +99,11 @@ class FollowingAxis extends Expression {
 				)
 			)
 			.filter(item => {
-				return this._testExpression.evaluateToBoolean(dynamicContext, item);
+				return this._testExpression.evaluateToBoolean(
+					dynamicContext,
+					item,
+					executionParameters
+				);
 			});
 	}
 }

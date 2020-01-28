@@ -29,7 +29,11 @@ class ChildAxis extends Expression {
 			.map(node => createPointerValue(node, executionParameters.domFacade));
 		const childContextSequence = sequenceFactory.create(nodeValues);
 		return childContextSequence.filter(item => {
-			return this._childExpression.evaluateToBoolean(dynamicContext, item);
+			return this._childExpression.evaluateToBoolean(
+				dynamicContext,
+				item,
+				executionParameters
+			);
 		});
 	}
 }

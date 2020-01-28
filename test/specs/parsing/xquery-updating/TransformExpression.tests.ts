@@ -11,7 +11,7 @@ beforeEach(() => {
 	documentNode = new slimdom.Document();
 });
 
-describe('TransformExpression', () => {
+describe.skip('TransformExpression', () => {
 	it('merges puls from copy clauses', async () => {
 		const element = documentNode.appendChild(documentNode.createElement('element'));
 		const result = await evaluateUpdatingExpression(
@@ -255,7 +255,7 @@ return ($a)
 			error = err;
 		}
 
-		chai.assert.match(error!.message, new RegExp('XUDY0014'));
+		chai.assert.match(error.message, new RegExp('XUDY0014'));
 	});
 
 	it('transforms something with something asynchronous', async () => {

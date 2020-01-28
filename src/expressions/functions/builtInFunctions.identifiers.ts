@@ -4,7 +4,7 @@ import sequenceFactory from '../dataTypes/sequenceFactory';
 
 import { FUNCTIONS_NAMESPACE_URI } from '../staticallyKnownNamespaces';
 
-import { NODE_TYPES } from 'fontoxpath/domFacade/ConcreteNode';
+import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import FunctionDefinitionType from './FunctionDefinitionType';
 
 function findDescendants(domFacade, node, isMatch) {
@@ -39,11 +39,14 @@ const fnId: FunctionDefinitionType = function(
 			});
 			return byId;
 		}, Object.create(null));
-	const documentNode =
-		domFacade.getNodeType(targetNodeValue.value) === NODE_TYPES.DOCUMENT_NODE
-			? targetNodeValue.value
-			: targetNodeValue.value.ownerDocument;
-	// TODO: Check how to get ownerDocument
+
+	let documentNode = targetNodeValue.value;
+	while (domFacade.getNodeType(documentNode) !== NODE_TYPES.DOCUMENT_NODE) {
+		documentNode = domFacade.getParentNode(documentNode);
+		if (documentNode === null) {
+			throw new Error('FODC0001: the root node of the target node is not a document node.');
+		}
+	}
 
 	const matchingNodes = findDescendants(domFacade, documentNode, node => {
 		// TODO: use the is-id property of attributes / elements
@@ -81,11 +84,14 @@ const fnIdref: FunctionDefinitionType = function(
 		byId[idValue.value] = true;
 		return byId;
 	}, Object.create(null));
-	const documentNode =
-		domFacade.getNodeType(targetNodeValue.value) === NODE_TYPES.DOCUMENT_NODE
-			? targetNodeValue.value
-			: targetNodeValue.value.ownerDocument;
-	//TODO ownerDocument??
+
+	let documentNode = targetNodeValue.value;
+	while (domFacade.getNodeType(documentNode) !== NODE_TYPES.DOCUMENT_NODE) {
+		documentNode = domFacade.getParentNode(documentNode);
+		if (documentNode === null) {
+			throw new Error('FODC0001: the root node of the context node is not a document node.');
+		}
+	}
 
 	// TODO: Index idrefs to optimize this lookup
 	const matchingNodes = findDescendants(domFacade, documentNode, function(node) {

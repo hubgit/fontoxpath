@@ -43,9 +43,15 @@ class AttributeAxis extends Expression {
 		// but does not include namespace declarations (because they are not attributes).
 		const matchingAttributes = domFacade
 			.getAllAttributes(contextItem.value, this._attributeTestExpression.getBucket())
-			.filter(attr => attr.namespaceURI !== 'http://www.w3.org/2000/xmlns/')
+			.filter(attr => domFacade.getNamespaceURI(attr) !== 'http://www.w3.org/2000/xmlns/')
 			.map(attribute => createPointerValue(attribute, executionParameters.domFacade))
-			.filter(item => this._attributeTestExpression.evaluateToBoolean(dynamicContext, item));
+			.filter(item =>
+				this._attributeTestExpression.evaluateToBoolean(
+					dynamicContext,
+					item,
+					executionParameters
+				)
+			);
 		return sequenceFactory.create(matchingAttributes);
 	}
 

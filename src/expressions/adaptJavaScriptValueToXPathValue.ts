@@ -144,8 +144,8 @@ export default function adaptJavaScriptValueToXPathValue(
 		}
 		case '+':
 		case '*': {
-			const convertedValues = value.map(
-				adaptJavaScriptValueToXPath.bind(null, type, null, domFacade)
+			const convertedValues = value.map(val =>
+				adaptJavaScriptValueToXPath(type, val, domFacade)
 			);
 			return sequenceFactory.create(
 				convertedValues.filter(convertedValue => convertedValue !== null)
