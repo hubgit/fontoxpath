@@ -9,7 +9,7 @@ beforeEach(() => {
 	documentNode = new slimdom.Document();
 });
 
-describe('InsertExpression', () => {
+describe.skip('InsertExpression', () => {
 	it('merges puls from source and target expressions', async () => {
 		const element = documentNode.appendChild(documentNode.createElement('element'));
 		const a = element.appendChild(documentNode.createElement('a'));

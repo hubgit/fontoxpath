@@ -15,7 +15,7 @@ import evaluateXPathToNumbers from './evaluateXPathToNumbers';
 import evaluateXPathToString from './evaluateXPathToString';
 import evaluateXPathToStrings from './evaluateXPathToStrings';
 import executePendingUpdateList from './executePendingUpdateList';
-import getBucketsForNode from './getBucketsForNode';
+import { getBucketsForNode } from './getBuckets';
 import INodesFactory from './nodesFactory/INodesFactory';
 import astHelper from './parsing/astHelper';
 import compileAstToExpression from './parsing/compileAstToExpression';
@@ -23,6 +23,7 @@ import {
 	getAnyStaticCompilationResultFromCache,
 	storeHalfCompiledCompilationResultInCache
 } from './parsing/compiledExpressionCache';
+import { IReturnTypes, ReturnType } from './parsing/convertXDMReturnValue';
 import parseExpression from './parsing/parseExpression';
 import precompileXPath from './precompileXPath';
 import registerCustomXPathFunction from './registerCustomXPathFunction';
@@ -38,7 +39,6 @@ import {
 	ProcessingInstruction,
 	Text
 } from './types/Types';
-import { IReturnTypes, ReturnType } from './parsing/convertXDMReturnValue';
 
 function parseXPath(xpathString: string) {
 	const cachedExpression = getAnyStaticCompilationResultFromCache(xpathString, 'XPath', false);

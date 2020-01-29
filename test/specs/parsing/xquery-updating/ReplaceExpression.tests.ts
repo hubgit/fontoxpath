@@ -9,7 +9,7 @@ beforeEach(() => {
 	documentNode = new slimdom.Document();
 });
 
-describe('ReplaceExpression', () => {
+describe.skip('ReplaceExpression', () => {
 	it('can replace a node and generate the correct update list', async () => {
 		const ele = documentNode.appendChild(documentNode.createElement('ele'));
 		const result = await evaluateUpdatingExpression(

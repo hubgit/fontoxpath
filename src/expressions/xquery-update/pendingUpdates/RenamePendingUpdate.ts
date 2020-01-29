@@ -1,10 +1,10 @@
-import { ConcreteElementNode } from '../../../domFacade/ConcreteNode';
+import { ElementNodePointer } from '../../../domClone/Pointer';
 import QName from '../../dataTypes/valueTypes/QName';
 import { IPendingUpdate } from '../IPendingUpdate';
 export class RenamePendingUpdate extends IPendingUpdate {
 	public newName: QName;
 	public readonly type: 'rename';
-	constructor(readonly target: ConcreteElementNode, newName: QName) {
+	constructor(readonly target: ElementNodePointer, newName: QName) {
 		super('rename');
 		this.newName = newName.buildPrefixedName
 			? newName
@@ -13,7 +13,7 @@ export class RenamePendingUpdate extends IPendingUpdate {
 	public toTransferable() {
 		return {
 			['type']: this.type,
-			['target']: this.target,
+			['target']: this.target.unwrap(),
 			['newName']: {
 				['prefix']: this.newName.prefix,
 				['namespaceURI']: this.newName.namespaceURI,

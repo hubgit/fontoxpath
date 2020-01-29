@@ -1,4 +1,5 @@
-import { ConcreteChildNode, ConcreteNode } from '../../domFacade/ConcreteNode';
+import { ConcreteChildNode } from '../../domFacade/ConcreteNode';
+import DomFacade from '../../domFacade/DomFacade';
 import { Attr, Element } from '../../types/Types';
 import isSubTypeOf from '../dataTypes/isSubtypeOf';
 import Value from '../dataTypes/Value';
@@ -41,19 +42,25 @@ export enum TargetChoice {
 	INSERT_INTO_AS_LAST = 5
 }
 
-function testNamespaceURIForAttribute(targetElement, attributeNode: Attr, namespaceBindings): void {
-	const prefix = attributeNode.prefix || '';
+function testNamespaceURIForAttribute(
+	targetElement,
+	attributeNode: Attr,
+	namespaceBindings,
+	domFacade: DomFacade
+): void {
+	const prefix = domFacade.getPrefix(attributeNode as any) || '';
+	const namespaceURI = domFacade.getNamespaceURI(attributeNode as any);
 
 	// b. No attribute node in $alist may have a QName whose implied namespace binding conflicts with a namespace binding in the "namespaces" property of $target [err:XUDY0023].
 	const boundNamespaceURI = prefix ? targetElement.lookupNamespaceURI(prefix) : null;
-	if (boundNamespaceURI && boundNamespaceURI !== attributeNode.namespaceURI) {
-		throw errXUDY0023(attributeNode.namespaceURI);
+	if (boundNamespaceURI && boundNamespaceURI !== namespaceURI) {
+		throw errXUDY0023(namespaceURI);
 	}
 	// c. Multiple attribute nodes in $alist may not have QNames whose implied namespace bindings conflict with each other [err:XUDY0024].
 	const alreadyDeclaredNamespace = namespaceBindings[prefix];
 	if (alreadyDeclaredNamespace) {
-		if (attributeNode.namespaceURI !== alreadyDeclaredNamespace) {
-			throw errXUDY0024(attributeNode.namespaceURI);
+		if (namespaceURI !== alreadyDeclaredNamespace) {
+			throw errXUDY0024(namespaceURI);
 		}
 	}
 }
@@ -158,6 +165,7 @@ class InsertExpression extends UpdatingExpression {
 			dynamicContext,
 			executionParameters
 		);
+		const domFacade = executionParameters.domFacade;
 
 		let alist: Attr[];
 		let clist: ConcreteChildNode[];
@@ -225,10 +233,7 @@ class InsertExpression extends UpdatingExpression {
 						}
 
 						// d. If before or after is specified, the node returned by the target expression must have a non-empty parent property [err:XUDY0029].
-						parent = executionParameters.domFacade.getParentNode(
-							tv.value.xdmValue[0].value,
-							null
-						);
+						parent = domFacade.getParentNode(tv.value.xdmValue[0].value, null);
 						if (parent === null) {
 							throw errXUDY0029(tv.value.xdmValue[0].value);
 						}
@@ -254,15 +259,16 @@ class InsertExpression extends UpdatingExpression {
 					}
 
 					alist.reduce((namespaceBindings, attributeNode) => {
-						const prefix = attributeNode.prefix || '';
+						const prefix = domFacade.getPrefix(attributeNode as any) || '';
 
 						testNamespaceURIForAttribute(
 							target.value,
 							attributeNode,
-							namespaceBindings
+							namespaceBindings,
+							domFacade
 						);
 
-						namespaceBindings[prefix] = attributeNode.namespaceURI;
+						namespaceBindings[prefix] = domFacade.getNamespaceURI(attributeNode as any);
 						return namespaceBindings;
 					}, []);
 				}

@@ -10,7 +10,7 @@ class TypeTest extends TestAbstractExpression {
 		this._type = type;
 	}
 
-	public evaluateToBoolean(_dynamicContext, item) {
+	public evaluateToBoolean(_dynamicContext, item, _executionParameters) {
 		return isSubtypeOf(
 			item.type,
 			this._type.prefix

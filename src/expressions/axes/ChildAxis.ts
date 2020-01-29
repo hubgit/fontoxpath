@@ -1,6 +1,7 @@
 import Expression, { RESULT_ORDERINGS } from '../Expression';
 
-import createNodeValue from '../dataTypes/createNodeValue';
+import { NODE_TYPES } from 'src/domFacade/ConcreteNode';
+import createPointerValue from '../dataTypes/createPointerValue';
 import sequenceFactory from '../dataTypes/sequenceFactory';
 import TestAbstractExpression from '../tests/TestAbstractExpression';
 
@@ -24,12 +25,22 @@ class ChildAxis extends Expression {
 		}
 		const domFacade = executionParameters.domFacade;
 		const contextNode = contextItem.value;
-		const nodeValues = domFacade
-			.getChildNodes(contextNode, this._childExpression.getBucket())
-			.map(createNodeValue);
+		const nodeType = domFacade.getNodeType(contextNode);
+		const nodeValues = [];
+		if (nodeType === NODE_TYPES.ELEMENT_NODE || nodeType === NODE_TYPES.DOCUMENT_NODE) {
+			domFacade
+				.getChildNodes(contextNode, this._childExpression.getBucket())
+				.forEach(node =>
+					nodeValues.push(createPointerValue(node, executionParameters.domFacade))
+				);
+		}
 		const childContextSequence = sequenceFactory.create(nodeValues);
 		return childContextSequence.filter(item => {
-			return this._childExpression.evaluateToBoolean(dynamicContext, item);
+			return this._childExpression.evaluateToBoolean(
+				dynamicContext,
+				item,
+				executionParameters
+			);
 		});
 	}
 }

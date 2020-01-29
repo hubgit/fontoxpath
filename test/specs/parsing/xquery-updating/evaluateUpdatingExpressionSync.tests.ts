@@ -8,7 +8,7 @@ beforeEach(() => {
 	documentNode = new slimdom.Document();
 });
 
-describe('evaluateUpdatingExpressionSync', () => {
+describe.skip('evaluateUpdatingExpressionSync', () => {
 	let insertBeforeCalled = false;
 	let removeChildCalled = false;
 	let removeAttributeNSCalled = false;

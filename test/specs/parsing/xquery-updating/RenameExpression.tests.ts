@@ -9,7 +9,7 @@ beforeEach(() => {
 	documentNode = new slimdom.Document();
 });
 
-describe('RenameExpression', () => {
+describe.skip('RenameExpression', () => {
 	it('allows rename', async () => {
 		const element = documentNode.appendChild(documentNode.createElement('element'));
 

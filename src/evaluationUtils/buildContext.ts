@@ -4,7 +4,6 @@ import wrapExternalDocumentWriter from '../documentWriter/wrapExternalDocumentWr
 import DomFacade from '../domFacade/DomFacade';
 import ExternalDomFacade from '../domFacade/ExternalDomFacade';
 import IDomFacade from '../domFacade/IDomFacade';
-import IWrappingDomFacade from '../domFacade/IWrappingDomFacade';
 import { Options } from '../evaluateXPath';
 import adaptJavaScriptValueToXPathValue from '../expressions/adaptJavaScriptValueToXPathValue';
 import sequenceFactory from '../expressions/dataTypes/sequenceFactory';
@@ -74,7 +73,7 @@ export default function buildEvaluationContext(
 	} else {
 		internalOptions = { namespaceResolver: null, nodesFactory: null, moduleImports: {} };
 	}
-	const wrappedDomFacade: IWrappingDomFacade = new DomFacade(
+	const wrappedDomFacade: DomFacade = new DomFacade(
 		domFacade === null ? new ExternalDomFacade() : domFacade
 	);
 
@@ -93,7 +92,7 @@ export default function buildEvaluationContext(
 	);
 
 	const contextSequence = contextItem
-		? adaptJavaScriptValueToXPathValue(contextItem)
+		? adaptJavaScriptValueToXPathValue(contextItem, undefined, wrappedDomFacade)
 		: sequenceFactory.empty();
 
 	const nodesFactory: INodesFactory =
@@ -107,7 +106,7 @@ export default function buildEvaluationContext(
 
 	const variableBindings = Object.keys(variables).reduce((typedVariableByName, variableName) => {
 		typedVariableByName[generateGlobalVariableBindingName(variableName)] = () =>
-			adaptJavaScriptValueToXPathValue(variables[variableName]);
+			adaptJavaScriptValueToXPathValue(variables[variableName], undefined, wrappedDomFacade);
 		return typedVariableByName;
 	}, Object.create(null));
 

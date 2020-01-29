@@ -13,12 +13,13 @@ class KindTest extends TestAbstractExpression {
 		this._nodeType = nodeType;
 	}
 
-	public evaluateToBoolean(_dynamicContext, node) {
-		if (this._nodeType === 3 && node.value.nodeType === 4) {
+	public evaluateToBoolean(_dynamicContext, node, executionParameters) {
+		const nodeType = executionParameters.domFacade.getNodeType(node.value);
+		if (this._nodeType === 3 && nodeType === 4) {
 			// CDATA_SECTION_NODES should be regarded as text nodes, and CDATA does not exist in the XPath Data Model
 			return true;
 		}
-		return this._nodeType === node.value.nodeType;
+		return this._nodeType === nodeType;
 	}
 
 	public getBucket() {
