@@ -239,6 +239,18 @@ describe('ElementConstructor', () => {
 			),
 			'The node b is the first child of its parent.'
 		);
+
+		chai.assert.isTrue(
+			evaluateXPathToBoolean(
+				`let $aa := a, $bb := a/b[1], $x := <x>{$aa}{$bb}</x>
+				return $x/a/parent::* is $x/b/parent::*`,
+				documentNode,
+				undefined,
+				{},
+				{ language: evaluateXPath.XQUERY_3_1_LANGUAGE }
+			),
+			'create all dom only once.'
+		);
 	});
 
 	it('returns data of the node', () => {
