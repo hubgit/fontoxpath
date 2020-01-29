@@ -42,15 +42,12 @@ class DomFacade {
 	): AttributeNodePointer[] {
 		if (pointer.isSilhouette()) {
 			const nodeSilhouette = pointer.unwrap() as ElementNodeSilhouette;
-			nodeSilhouette.attributes.map((attribute, index) => {
-				return {
-					graftAncestor: {
-						graftAncestor: pointer.getGraftAncestor(),
-						offset: index,
-						parent: nodeSilhouette
-					},
-					node: attribute
-				};
+			return nodeSilhouette.attributes.map((attribute, index) => {
+				return new AttributeNodePointer(attribute, {
+					graftAncestor: pointer.getGraftAncestor(),
+					offset: attribute.nodeName,
+					parent: nodeSilhouette
+				});
 			});
 		}
 		const node = pointer.unwrap() as Element;
@@ -184,13 +181,22 @@ class DomFacade {
 			const allSiblings = isNodeSilhouette(graftAncestor.parent)
 				? (graftAncestor.parent as ParentNodeSilhouette).childNodes
 				: this.getChildNodes(this.getParentNode(pointer, bucket), bucket);
-			nextSibling = allSiblings[offset + 1];
+			nextSibling = allSiblings[(offset as number) + 1];
 		} else {
-			nextSibling = pointer.unwrap() as Node;
-			while (nextSibling) {
-				nextSibling = this._domFacade['getNextSibling'](nextSibling as Node, bucket);
-				if (nextSibling && nextSibling.nodeType !== NODE_TYPES.DOCUMENT_TYPE_NODE) {
-					break;
+			if (graftAncestor) {
+				// This is a clone, use the ancestor anyway
+				const offset = graftAncestor.offset;
+				const allSiblings = isNodeSilhouette(graftAncestor.parent)
+					? (graftAncestor.parent as ParentNodeSilhouette).childNodes
+					: this.getChildNodes(this.getParentNode(pointer, bucket), bucket);
+				nextSibling = allSiblings[(offset as number) + 1];
+			} else {
+				nextSibling = pointer.unwrap() as Node;
+				while (nextSibling) {
+					nextSibling = this._domFacade['getNextSibling'](nextSibling as Node, bucket);
+					if (nextSibling && nextSibling.nodeType !== NODE_TYPES.DOCUMENT_TYPE_NODE) {
+						break;
+					}
 				}
 			}
 		}
@@ -201,7 +207,7 @@ class DomFacade {
 					graftAncestor
 						? {
 								graftAncestor: graftAncestor.graftAncestor,
-								offset: graftAncestor.offset + 1,
+								offset: (graftAncestor.offset as number) + 1,
 								parent: graftAncestor.parent
 						  }
 						: null
@@ -235,7 +241,18 @@ class DomFacade {
 			return unwrappedParentNode ? new ParentNodePointer(unwrappedParentNode, null) : null;
 		}
 		// check the child at graftAncestor is that node
-		if (unwrappedChildNode === graftAncestor.parent[graftAncestor.offset]) {
+		if (
+			(typeof graftAncestor.offset === 'number' &&
+				unwrappedChildNode ===
+					(graftAncestor.parent as ParentNodeSilhouette).childNodes[
+						graftAncestor.offset
+					]) ||
+			(typeof graftAncestor.offset === 'string' &&
+				unwrappedChildNode ===
+					(graftAncestor.parent as ElementNodeSilhouette).attributes.find(
+						e => graftAncestor.offset === e.nodeName
+					))
+		) {
 			// if yes
 			return new ParentNodePointer(
 				graftAncestor.parent as ParentNodeSilhouette | ConcreteParentNode,
@@ -273,16 +290,28 @@ class DomFacade {
 			const allSiblings = isNodeSilhouette(graftAncestor.parent)
 				? (graftAncestor.parent as ParentNodeSilhouette).childNodes
 				: this.getChildNodes(this.getParentNode(pointer, bucket), bucket);
-			previousSibling = allSiblings[offset - 1];
+			previousSibling = allSiblings[(offset as number) - 1];
 		} else {
-			previousSibling = pointer.unwrap() as Node;
-			while (previousSibling) {
-				previousSibling = this._domFacade['getPreviousSibling'](
-					previousSibling as Node,
-					bucket
-				);
-				if (previousSibling && previousSibling.nodeType !== NODE_TYPES.DOCUMENT_TYPE_NODE) {
-					break;
+			if (graftAncestor) {
+				// This is a clone, use the ancestor anyway
+				const offset = graftAncestor.offset;
+				const allSiblings = isNodeSilhouette(graftAncestor.parent)
+					? (graftAncestor.parent as ParentNodeSilhouette).childNodes
+					: this.getChildNodes(this.getParentNode(pointer, bucket), bucket);
+				previousSibling = allSiblings[(offset as number) - 1];
+			} else {
+				previousSibling = pointer.unwrap() as Node;
+				while (previousSibling) {
+					previousSibling = this._domFacade['getPreviousSibling'](
+						previousSibling as Node,
+						bucket
+					);
+					if (
+						previousSibling &&
+						previousSibling.nodeType !== NODE_TYPES.DOCUMENT_TYPE_NODE
+					) {
+						break;
+					}
 				}
 			}
 		}
@@ -293,7 +322,7 @@ class DomFacade {
 					graftAncestor
 						? {
 								graftAncestor: graftAncestor.graftAncestor,
-								offset: graftAncestor.offset - 1,
+								offset: (graftAncestor.offset as number) - 1,
 								parent: graftAncestor.parent
 						  }
 						: null

@@ -2,6 +2,9 @@ import IDocumentWriter from '../../documentWriter/IDocumentWriter';
 import {
 	AttributeNodePointer,
 	CDATASectionNodePointer,
+	CharacterDataNodePointer,
+	CommentNodePointer,
+	DocumentNodePointer,
 	ElementNodePointer,
 	NodePointer,
 	ParentNodePointer,
@@ -38,7 +41,7 @@ function deepCloneNode(
 	domFacade: DomFacade,
 	nodesFactory: INodesFactory,
 	documentWriter: IDocumentWriter
-) {
+): NodePointer {
 	// Each copied node receives a new node identity. The parent, children, and attributes properties of the copied nodes are set so as to preserve their inter-node relationships. The parent property of the copy of $node is set to empty. Other properties of the copied nodes are determined as follows:
 
 	// For a copied document node, the document-uri property is set to empty.
@@ -68,9 +71,13 @@ function deepCloneNode(
 				);
 			for (const child of domFacade.getChildNodes(pointer as ElementNodePointer)) {
 				const descendant = deepCloneNode(child, domFacade, nodesFactory, documentWriter);
-				documentWriter.insertBefore(cloneElem as ConcreteElementNode, descendant, null);
+				documentWriter.insertBefore(
+					cloneElem as ConcreteElementNode,
+					descendant.unwrap(),
+					null
+				);
 			}
-			return cloneElem;
+			return new ElementNodePointer(cloneElem, null);
 		case NODE_TYPES.ATTRIBUTE_NODE:
 			pointer = pointer as AttributeNodePointer;
 			const cloneAttr = nodesFactory.createAttributeNS(
@@ -78,27 +85,43 @@ function deepCloneNode(
 				domFacade.getNodeName(pointer as AttributeNodePointer)
 			);
 			cloneAttr.value = domFacade.getData(pointer as AttributeNodePointer);
-			return cloneAttr;
+			return new AttributeNodePointer(cloneAttr, null);
 		case NODE_TYPES.CDATA_SECTION_NODE:
-			return nodesFactory.createCDATASection(
-				domFacade.getData(pointer as CDATASectionNodePointer)
+			return new CharacterDataNodePointer(
+				nodesFactory.createCDATASection(
+					domFacade.getData(pointer as CDATASectionNodePointer)
+				),
+				null
 			);
 		case NODE_TYPES.COMMENT_NODE:
-			return nodesFactory.createComment(domFacade.getData(pointer as AttributeNodePointer));
+			return new CommentNodePointer(
+				nodesFactory.createComment(domFacade.getData(pointer as AttributeNodePointer)),
+				null
+			);
 		case NODE_TYPES.DOCUMENT_NODE:
 			const cloneDoc = nodesFactory.createDocument();
 			for (const child of domFacade.getChildNodes(pointer as ParentNodePointer)) {
 				const descendant = deepCloneNode(child, domFacade, nodesFactory, documentWriter);
-				documentWriter.insertBefore(cloneDoc as ConcreteDocumentNode, descendant, null);
+				documentWriter.insertBefore(
+					cloneDoc as ConcreteDocumentNode,
+					descendant.unwrap(),
+					null
+				);
 			}
-			return cloneDoc;
+			return new DocumentNodePointer(cloneDoc, null);
 		case NODE_TYPES.PROCESSING_INSTRUCTION_NODE:
-			return nodesFactory.createProcessingInstruction(
-				domFacade.getTarget(pointer as ProcessingInstructionNodePointer),
-				domFacade.getData(pointer as ProcessingInstructionNodePointer)
+			return new ProcessingInstructionNodePointer(
+				nodesFactory.createProcessingInstruction(
+					domFacade.getTarget(pointer as ProcessingInstructionNodePointer),
+					domFacade.getData(pointer as ProcessingInstructionNodePointer)
+				),
+				null
 			);
 		case NODE_TYPES.TEXT_NODE:
-			return nodesFactory.createTextNode(domFacade.getData(pointer as TextNodePointer));
+			return new TextNodePointer(
+				nodesFactory.createTextNode(domFacade.getData(pointer as TextNodePointer)),
+				null
+			);
 	}
 }
 

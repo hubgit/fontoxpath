@@ -2,6 +2,8 @@ import * as chai from 'chai';
 import adaptJavaScriptValueToXPathValue from 'fontoxpath/expressions/adaptJavaScriptValueToXPathValue';
 import DateTime from 'fontoxpath/expressions/dataTypes/valueTypes/DateTime';
 import * as slimdom from 'slimdom';
+import { domFacade as adaptingDomFacade } from '../../../src';
+import DomFacade from '../../../src/domFacade/DomFacade';
 
 describe('adaptJavaScriptValueToXPathValue', () => {
 	it('turns numbers into integers', () => {
@@ -26,7 +28,12 @@ describe('adaptJavaScriptValueToXPathValue', () => {
 	});
 
 	it('turns nodes into nodes', () => {
-		const xpathSequence = adaptJavaScriptValueToXPathValue(new slimdom.Document());
+		const domFacade = new DomFacade(adaptingDomFacade);
+		const xpathSequence = adaptJavaScriptValueToXPathValue(
+			new slimdom.Document(),
+			undefined,
+			domFacade
+		);
 		chai.assert(xpathSequence.isSingleton(), 'is a singleton sequence');
 		chai.assert(xpathSequence.first().type === 'document()', 'is a document');
 	});

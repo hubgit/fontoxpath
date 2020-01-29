@@ -49,7 +49,7 @@ export type NodeSilhouette = ChildNodeSilhouette | ParentNodeSilhouette | Attrib
 // Graft and Pointers
 export type GraftPoint = {
 	graftAncestor: GraftPoint | null;
-	offset: number;
+	offset: number | string;
 	parent: NodeSilhouette;
 };
 

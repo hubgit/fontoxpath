@@ -277,12 +277,15 @@ export default function convertXDMReturnValue<
 				return isSubtypeOf(value.type, 'node()') && !isSubtypeOf(value.type, 'attribute()');
 			});
 			if (allValuesAreNodes) {
-				if (allValues.value.length === 1) {
-					return allValues.value[0].value;
+				const allResults = allValues.value.map(nodeValue => {
+					const asd = createDomAndGetActualNode(nodeValue.value, executionParameters);
+					return asd as unknown;
+				}) as IReturnTypes<TNode>[TReturnType];
+
+				if (allResults.length === 1) {
+					return allResults[0];
 				}
-				return allValues.value.map(nodeValue => {
-					return nodeValue.value;
-				});
+				return allResults;
 			}
 			if (allValues.value.length === 1) {
 				const first = allValues.value[0];

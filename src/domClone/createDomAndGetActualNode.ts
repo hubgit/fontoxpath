@@ -39,7 +39,7 @@ function createNewNode(pointer: NodePointer, executionParameters: ExecutionParam
 					namespaceURI,
 					prefix ? prefix + ':' + localName : localName
 				);
-				domFacade.getChildNodes(elementNodePointer).forEach((childPointer, childIndex) => {
+				domFacade.getChildNodes(elementNodePointer).forEach(childPointer => {
 					const newChildNode = createNewNode(childPointer, executionParameters);
 					documentWriter.insertBefore(element, newChildNode, null);
 				});
@@ -61,7 +61,7 @@ function createNewNode(pointer: NodePointer, executionParameters: ExecutionParam
 					domFacade.getData(pIPointer)
 				);
 			case NODE_TYPES.TEXT_NODE:
-				return nodesFactory.createComment(domFacade.getData(pointer as TextNodePointer));
+				return nodesFactory.createTextNode(domFacade.getData(pointer as TextNodePointer));
 		}
 	} else {
 		// we need to set a rule to create clone or use same node.
@@ -116,6 +116,16 @@ function createDomAndGetActualNode(
 	pointer: NodePointer,
 	executionParameters: ExecutionParameters
 ): Node {
+	if (!pointer.isSilhouette()) {
+		// we need to set a rule to create clone or use same node.
+		const graftAncestor = pointer.getGraftAncestor();
+		const node = pointer.unwrap();
+		if (graftAncestor) {
+			return (node as any).cloneNode(true);
+		} else {
+			return node;
+		}
+	}
 	const pathToNodeFromRoot = [];
 	const rootPointer = getRootPointer(pointer, pathToNodeFromRoot, executionParameters.domFacade);
 	let newRootPointer = newRootPointerByRootPointer.get(rootPointer);

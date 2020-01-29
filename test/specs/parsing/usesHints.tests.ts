@@ -77,7 +77,7 @@ function buildDomFacade(...shouldNotBeTraversed: slimdom.Node[]): IDomFacade {
 	return new ThrowingDomFacade();
 }
 
-describe.skip('uses hints', () => {
+describe('uses hints', () => {
 	it('skips the subtree for outermost()', () => {
 		jsonMlMapper.parse(['root', ['foo', ['foo']]], documentNode);
 		const descendant = documentNode.documentElement.firstChild.firstChild;

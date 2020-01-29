@@ -124,9 +124,9 @@ function adaptJavaScriptValueToXPath(type, value: any, domFacade: DomFacade): Va
 }
 
 export default function adaptJavaScriptValueToXPathValue(
-	domFacade: DomFacade,
 	value: any,
-	expectedType?: string | undefined
+	expectedType?: string | undefined,
+	domFacade?: DomFacade
 ): ISequence {
 	expectedType = expectedType || 'item()?';
 

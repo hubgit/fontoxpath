@@ -16,7 +16,7 @@ import { NODE_TYPES } from '../../domFacade/ConcreteNode';
 import StaticContext from '../StaticContext';
 import concatSequences from '../util/concatSequences';
 
-function createAttribute(nodesFactory, name, value) {
+function createAttribute(name, value) {
 	const attributeNodeSilhouette: AttributeNodeSilhouette = {
 		nodeType: NODE_TYPES.ATTRIBUTE_NODE,
 		isSilhouette: true,
@@ -28,10 +28,6 @@ function createAttribute(nodesFactory, name, value) {
 		value
 	};
 	return new AttributeNodePointer(attributeNodeSilhouette, null);
-
-	// const attr = nodesFactory.createAttributeNS(name.namespaceURI, name.buildPrefixedName());
-	// attr.value = value;
-	// return attr;
 }
 
 class AttributeConstructor extends Expression {
@@ -136,7 +132,6 @@ class AttributeConstructor extends Expression {
 							sequenceFactory.singleton(
 								createPointerValue(
 									createAttribute(
-										nodesFactory,
 										name,
 										allValueParts.map(val => val.value).join('')
 									),
@@ -152,7 +147,7 @@ class AttributeConstructor extends Expression {
 
 				return ready(
 					createPointerValue(
-						createAttribute(nodesFactory, name, (this._value as any).value),
+						createAttribute(name, (this._value as any).value),
 						executionParameters.domFacade
 					)
 				);

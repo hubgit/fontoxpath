@@ -298,8 +298,8 @@ const fnLocalName: FunctionDefinitionType = (
 		default: () => {
 			return sequence.map(node => {
 				if (domFacade.getNodeType(node.value) === 7) {
-					const pi: ConcreteProcessingInstructionNode = node.value;
-					return createAtomicValue(pi.target, 'xs:string');
+					const pi: ProcessingInstructionNodePointer = node.value;
+					return createAtomicValue(domFacade.getTarget(pi), 'xs:string');
 				}
 
 				return createAtomicValue(domFacade.getLocalName(node.value) || '', 'xs:string');

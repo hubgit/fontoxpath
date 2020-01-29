@@ -92,7 +92,7 @@ export default function buildEvaluationContext(
 	);
 
 	const contextSequence = contextItem
-		? adaptJavaScriptValueToXPathValue(wrappedDomFacade, contextItem)
+		? adaptJavaScriptValueToXPathValue(contextItem, undefined, wrappedDomFacade)
 		: sequenceFactory.empty();
 
 	const nodesFactory: INodesFactory =
@@ -106,7 +106,7 @@ export default function buildEvaluationContext(
 
 	const variableBindings = Object.keys(variables).reduce((typedVariableByName, variableName) => {
 		typedVariableByName[generateGlobalVariableBindingName(variableName)] = () =>
-			adaptJavaScriptValueToXPathValue(wrappedDomFacade, variables[variableName]);
+			adaptJavaScriptValueToXPathValue(variables[variableName], undefined, wrappedDomFacade);
 		return typedVariableByName;
 	}, Object.create(null));
 

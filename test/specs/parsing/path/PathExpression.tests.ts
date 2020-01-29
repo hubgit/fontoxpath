@@ -177,7 +177,7 @@ describe('relative paths', () => {
 		);
 	});
 
-	it.only('sorts //text() across different levels correctly', () => {
+	it('sorts //text() across different levels correctly', () => {
 		chai.assert.equal(
 			evaluateXPathToString(
 				'let $dom := <ref id="bib12"><mixed-citation publication-type="journal"><?AuthorQuery id="Q14" queryText="CrossRef reports the DOI should be &quot;10.1175/1520-0477(1986)067&lt;1226:SCOPMM&gt;2.0.CO;2&quot;, not &quot;10.1175/1520-0477(1986)067,1226:SCOPMM.2.0.CO;2&quot;. eXtyles has used the CrossRef-supplied DOI. (Ref. &quot;Wilheit, 1986&quot;)"?><person-group person-group-type="author"><string-name><surname>Wilheit</surname>, <given-names>T. T.</given-names></string-name></person-group>, <year>1986</year>: <article-title>Some comments on passive microwave measurement of rain.</article-title> <source>Bull. Amer. Meteor. Soc.</source>, <volume>67</volume>, <fpage>1226</fpage>–<lpage>1232</lpage>, doi:<pub-id pub-id-type="doi">10.1175/1520-0477(1986)067&lt;1226:SCOPMM&gt;2.0.CO;2</pub-id></mixed-citation></ref> return $dom//text() => string-join("~~")',

@@ -137,9 +137,9 @@ return app:doThings($a)
 
 		const jsResult = callback.apply(undefined, [dynamicContextAdapter, ...newArguments]);
 		const xpathResult = adaptJavaScriptValueToXPathValue(
-			executionParameters.domFacade,
 			jsResult,
-			returnType
+			returnType,
+			executionParameters.domFacade
 		);
 
 		return xpathResult;

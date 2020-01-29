@@ -1,11 +1,23 @@
-import { AttributeNodeSilhouette, ChildNodeSilhouette } from '../../domClone/Pointer';
-import { ConcreteAttributeNode, ConcreteChildNode } from '../../domFacade/ConcreteNode';
+import {
+	AttributeNodeSilhouette,
+	ChildNodeSilhouette,
+	TextNodeSilhouette
+} from '../../domClone/Pointer';
+import { ConcreteAttributeNode, ConcreteChildNode, NODE_TYPES } from '../../domFacade/ConcreteNode';
 import atomize from '../dataTypes/atomize';
 import castToType from '../dataTypes/castToType';
 import createPointerValue from '../dataTypes/createPointerValue';
 import isSubtypeOf from '../dataTypes/isSubtypeOf';
 import Value from '../dataTypes/Value';
 import ExecutionParameters from '../ExecutionParameters';
+
+function createTextNodeSilhouette(content): TextNodeSilhouette {
+	return {
+		data: content,
+		isSilhouette: true,
+		nodeType: NODE_TYPES.TEXT_NODE
+	};
+}
 
 function parseChildNodes(
 	childNodes: Value[],
@@ -15,7 +27,6 @@ function parseChildNodes(
 	attributesDone: boolean,
 	attributeError: (arg0: any, arg1?: any) => Error
 ) {
-	const nodesFactory = executionParameters.nodesFactory;
 	const domFacade = executionParameters.domFacade;
 
 	// Plonk all childNodes, these are special though
@@ -34,12 +45,12 @@ function parseChildNodes(
 			const atomizedValue = castToType(atomize(childNode, executionParameters), 'xs:string')
 				.value;
 			if (i !== 0 && isSubtypeOf(childNodes[i - 1].type, 'xs:anyAtomicType')) {
-				contentNodes.push(nodesFactory.createTextNode(' ' + atomizedValue));
+				contentNodes.push(createTextNodeSilhouette(' ' + atomizedValue));
 				attributesDone = true;
 				return;
 			}
 			if (atomizedValue) {
-				contentNodes.push(nodesFactory.createTextNode('' + atomizedValue));
+				contentNodes.push(createTextNodeSilhouette('' + atomizedValue));
 				attributesDone = true;
 			}
 			return;
