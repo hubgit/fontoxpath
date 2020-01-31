@@ -262,14 +262,14 @@ fn-datanni1args-2,Error: FOCA0003: can not cast 303884545991464527 to xs:integer
 fn-datanni1args-3,Error: FOCA0003: can not cast 999999999999999999 to xs:integer, it is out of bounds for JavaScript numbers.
 K2-DataFunc-6,AssertionError: expected [Function] to throw an error
 cbcl-data-001,AssertionError: Expected executing the XPath "fn:data(fn:error()) instance of xs:integer" to resolve to one of the expected results, but got Error: XPST0017: Function fn:error with arity of 0 not registered. Did you mean "Q{http://www.w3.org/2001/XMLSchema}error (xs:anyAtomicType?)"?, AssertionError: expected [Function] to throw error matching /FOER0000/ but got 'XPST0017: Function fn:error with arity of 0 not registered. Did you mean "Q{http://www.w3.org/2001/XMLSchema}error (xs:anyAtomicType?)"?'.
-fn-dateTime-22,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fn-dateTime-22,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 fn-dateTime-24,Error: Not implemented: adding durations to xs:dateTime
 fn-dateTime-25,Error: Not implemented: adding durations to xs:dateTime
 fn-dateTime-26,Error: Not implemented: subtracting durations from xs:dateTime
 fn-dateTime-27,Error: Not implemented: subtracting durations from xs:dateTime
 cbcl-dateTime-001,Error: XPTY0004: eqOp not available for xs:string and xs:dateTime
 cbcl-dateTime-002,AssertionError: expected [Function] to throw error matching /FORG0008/ but got 'XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.'
-fn-day-from-dateTime-3,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fn-day-from-dateTime-3,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 fn-deep-equalintg2args-1,Error: FOCA0003: can not cast -999999999999999999 to xs:integer, it is out of bounds for JavaScript numbers.
 fn-deep-equalintg2args-2,Error: FOCA0003: can not cast 830993497117024304 to xs:integer, it is out of bounds for JavaScript numbers.
 fn-deep-equalintg2args-3,Error: FOCA0003: can not cast 999999999999999999 to xs:integer, it is out of bounds for JavaScript numbers.
@@ -305,8 +305,8 @@ fn-deep-equalnni2args-5,Error: FOCA0003: can not cast 999999999999999999 to xs:i
 fn-deep-equal-mix-args-019,AssertionError: Expected XPath fn:deep-equal( xs:float(1.01) , xs:double(1.01)) to resolve to false: expected true to be false
 fn-deep-equal-maps-13,Error: FOCH0002: No collations are supported
 fn-deep-equal-maps-14,Error: FOCH0002: No collations are supported
-fn-deep-equal-maps-16,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fn-deep-equal-maps-17,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fn-deep-equal-maps-16,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fn-deep-equal-maps-17,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 K-SeqDeepEqualFunc-6,Error: FOCH0002: No collations are supported
 K-SeqDeepEqualFunc-56,Error: FOCH0002: No collations are supported
 K-SeqDeepEqualFunc-57,Error: FOCH0002: No collations are supported
@@ -697,7 +697,7 @@ fn-has-children-008,AssertionError: Expected executing the XPath "(fn:concat#2)[
 fn-has-children-012,AssertionError: expected [Function] to throw an error
 fn-has-children-013,AssertionError: expected [Function] to throw an error
 fn-has-children-014,AssertionError: expected [Function] to throw an error
-fn-hours-from-dateTime-3,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fn-hours-from-dateTime-3,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 fn-hours-from-time-4,Error: XPST0017: Function fn:adjust-time-to-timezone with arity of 2 not registered. No similar functions found.
 fn-id-2,AssertionError: expected [Function] to throw an error
 fn-id-4,Error: No selector counterpart for: computedDocumentConstructor.
@@ -731,7 +731,7 @@ fn-implicit-timezone-19,Error: Not implemented: subtracting durations from xs:da
 fn-implicit-timezone-20,Error: Not implemented: adding durations to xs:dateTime
 fn-implicit-timezone-21,Error: XPST0017: Function fn:adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
 fn-implicit-timezone-22,Error: XPST0017: Function fn:adjust-time-to-timezone with arity of 2 not registered. No similar functions found.
-fn-implicit-timezone-23,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fn-implicit-timezone-23,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 fn-innermost-008,AssertionError: expected [Function] to throw an error
 fn-innermost-010,AssertionError: expected [Function] to throw an error
 fn-innermost-055,Error: Not implemented: orderByClause is not implemented yet.
@@ -880,7 +880,7 @@ cbcl-min-007,AssertionError:        	declare function local:f($x as xs:integer) 
 cbcl-min-008,AssertionError: expected [Function] to throw an error
 cbcl-min-016,AssertionError: expected [Function] to throw an error
 cbcl-min-017,AssertionError: expected [Function] to throw an error
-fn-month-from-dateTime-3,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fn-month-from-dateTime-3,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 fn-name-16,AssertionError: Expected executing the XPath "for $h in (./works/employee[2]) return fn:count(fn:name($h/self::div))" to resolve to one of the expected results, but got AssertionError: for $h in (./works/employee[2]) return fn:count(fn:name($h/self::div)): expected '0' to equal '1', AssertionError: expected [Function] to throw an error.
 K-NameFunc-3,AssertionError: Expected XPath name(()) eq "" to resolve to true: expected false to be true
 NamespaceURIFromQNameFunc015a,AssertionError: expected [Function] to throw error matching /XPTY0117/ but got 'Casting to xs:QName is not implemented.'
@@ -1389,7 +1389,7 @@ map-contains-017,AssertionError: Expected XPath map:contains(map{1:"Sunday",2:"M
 map-contains-018,AssertionError: Expected XPath map:contains(map{1:"Sunday",2:"Monday",3:"Tuesday",function-name(abs#1):"Wednesday",5:"Thursday",6:"Friday",7:"Saturday"}, xs:QName('fn:abs')) to resolve to true: expected false to be true
 map-get-017,AssertionError: map:get(map{1:"Sunday",2:"Monday",3:"Tuesday",xs:duration('P1Y'):"Wednesday",5:"Thursday",6:"Friday",7:"Saturday"}, xs:yearMonthDuration('P12M')): expected '' to equal 'Wednesday'
 map-get-018,AssertionError: map:get(map{1:"Sunday",2:"Monday",3:"Tuesday",function-name(abs#1):"Wednesday",5:"Thursday",6:"Friday",7:"Saturday"}, xs:QName('fn:abs')): expected '' to equal 'Wednesday'
-map-get-023,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+map-get-023,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 map-get-024,Error: XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
 map-entry-001-hof,Error: No selector counterpart for: typedMapTest.
 map-entry-001,Error: No selector counterpart for: typedMapTest.
@@ -1401,7 +1401,7 @@ map-entry-006,Error: XPST0003: Unable to parse: "let $result := (map:entry(xs:fl
 map-entry-007-hof,Error: No selector counterpart for: typedMapTest.
 map-entry-007,Error: No selector counterpart for: typedMapTest.
 map-size-007,AssertionError: expected [Function] to throw an error
-map-size-014,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+map-size-014,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 map-keys-007,AssertionError: expected [Function] to throw an error
 map-put-002-hof,Error: No selector counterpart for: typedMapTest.
 map-put-002,Error: No selector counterpart for: typedMapTest.
@@ -1420,7 +1420,7 @@ map-remove-008,Error: No selector counterpart for: typedMapTest.
 map-remove-009,Error: No selector counterpart for: typedMapTest.
 map-remove-010,Error: No selector counterpart for: typedMapTest.
 map-remove-011,Error: No selector counterpart for: typedMapTest.
-map-remove-014,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+map-remove-014,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 map-remove-016,AssertionError: Expected XPath              map{xs:float('1.0'):0, xs:double('1.00000000001'):1}              => map:remove(xs:decimal('1.0000000000100000000001'))              => map:size()          to resolve to 2: expected false to be true
 map-for-each-007,AssertionError: expected [Function] to throw an error
 array-filter-007,AssertionError: expected [Function] to throw error matching /XPTY0004/ but got 'Atomizing array(*) is not implemented.'
@@ -1540,12 +1540,12 @@ cbcl-date-greater-than-015,Error: XPST0017: Function adjust-date-to-timezone wit
 cbcl-date-greater-than-016,Error: XPST0017: Function adjust-date-to-timezone with arity of 1 not registered. No similar functions found.
 cbcl-date-less-than-015,Error: XPST0017: Function adjust-date-to-timezone with arity of 1 not registered. No similar functions found.
 cbcl-date-less-than-016,Error: XPST0017: Function adjust-date-to-timezone with arity of 1 not registered. No similar functions found.
-cbcl-dateTime-equal-015,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-cbcl-dateTime-equal-016,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-cbcl-dateTime-greater-than-015,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-cbcl-dateTime-greater-than-016,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-cbcl-dateTime-less-than-015,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-cbcl-dateTime-less-than-016,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
+cbcl-dateTime-equal-015,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+cbcl-dateTime-equal-016,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+cbcl-dateTime-greater-than-015,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+cbcl-dateTime-greater-than-016,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+cbcl-dateTime-less-than-015,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+cbcl-dateTime-less-than-016,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 op-divide-dayTimeDuration2args-2,AssertionError: xs:dayTimeDuration("P15DT11H59M59S") div xs:double("-1.7976931348623157E308"): expected '-PT7.449541715597465e-303S' to equal 'PT0S'
 op-divide-dayTimeDuration2args-3,AssertionError: xs:dayTimeDuration("P31DT23H59M59S") div xs:double("-1.7976931348623157E308"): expected '-PT1.5379704947317132e-302S' to equal 'PT0S'
 cbcl-divide-dayTimeDuration-002,AssertionError: declare function local:dayTimeDuration($days as xs:integer) as xs:dayTimeDuration { xs:dayTimeDuration(concat("P", $days, "D")) }; local:dayTimeDuration(2) div 1: expected 'P2DT' to equal 'P2D'
@@ -2872,10 +2872,10 @@ function-literal-169,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-fu
 function-literal-170,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}iri-to-uri with arity of 1 not registered. No similar functions found.
 function-literal-171,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}escape-html-uri with arity of 1 not registered. No similar functions found.
 function-literal-172,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}escape-html-uri with arity of 1 not registered. No similar functions found.
-function-literal-225,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-function-literal-226,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-function-literal-227,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-function-literal-228,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+function-literal-225,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+function-literal-226,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+function-literal-227,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+function-literal-228,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 function-literal-229,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-date-to-timezone with arity of 1 not registered. No similar functions found.
 function-literal-230,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-date-to-timezone with arity of 1 not registered. No similar functions found.
 function-literal-231,Error: XPST0017: Function Q{http://www.w3.org/2005/xpath-functions}adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
@@ -2982,7 +2982,7 @@ named-function-ref-reserved-function-names-011,AssertionError: expected [Functio
 named-function-ref-reserved-function-names-012,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function schema-attribute with arity of 0 not registered. No similar functions found.'
 named-function-ref-reserved-function-names-013,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function schema-element with arity of 0 not registered. No similar functions found.'
 named-function-ref-reserved-function-names-014,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function switch with arity of 0 not registered. No similar functions found.'
-named-function-ref-reserved-function-names-015,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function text with arity of 0 not registered. No similar functions found.'
+named-function-ref-reserved-function-names-015,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function text with arity of 0 not registered. Did you mean "Q{http://www.example.com/customFunctionTest}test ()"?'
 named-function-ref-reserved-function-names-016,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function typeswitch with arity of 0 not registered. No similar functions found.'
 named-function-ref-reserved-function-names-017,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function array with arity of 0 not registered. No similar functions found.'
 named-function-ref-reserved-function-names-018,AssertionError: expected [Function] to throw error matching /XPST0003/ but got 'XPST0017: Function map with arity of 0 not registered. Did you mean "Q{http://www.w3.org/2005/xpath-functions}max (xs:anyAtomicType*)" or "Q{http://www.w3.org/2005/xpath-functions}max (xs:anyAtomicType*, xs:string)"?'
@@ -3411,6 +3411,7 @@ value-comparison-5,Error: Atomizing array(*) is not implemented.
 value-comparison-6,Error: Atomizing array(*) is not implemented.
 value-comparison-7,Error: Atomizing array(*) is not implemented.
 value-comparison-8,AssertionError: expected [Function] to throw error matching /XPTY0004/ but got 'Atomizing array(*) is not implemented.'
+value-comparison-12,AssertionError: Expected XPath //test:comparable[1]/test:int eq //test:comparable[2]/test:int to resolve to true: expected false to be true
 VarDecl020,AssertionError: declare variable $x := 9.999999999999999; $x: expected '9.999999999999998' to equal '9.999999999999999'
 VarDecl046,Error: Not implemented: adding durations to xs:date
 VarDecl048,Error: Not implemented: adding durations to xs:time
@@ -3532,7 +3533,7 @@ FODC0002_4,AssertionError: expected [Function] to throw error matching /FODC0002
 FODC0004,AssertionError: Expected executing the XPath "collection('%gg')" to resolve to one of the expected results, but got AssertionError: expected [Function] to throw error matching /FODC0004/ but got 'XPST0017: Function collection with arity of 1 not registered. No similar functions found.', AssertionError: expected [Function] to throw error matching /FODC0002/ but got 'XPST0017: Function collection with arity of 1 not registered. No similar functions found.'.
 FODC0005-1,AssertionError: Expected executing the XPath "doc('%gg')" to resolve to one of the expected results, but got AssertionError: expected [Function] to throw error matching /FODC0005/ but got 'XPST0017: Function doc with arity of 1 not registered. No similar functions found.', AssertionError: expected [Function] to throw error matching /FODC0002/ but got 'XPST0017: Function doc with arity of 1 not registered. No similar functions found.'.
 FODC0005-2,AssertionError: Expected executing the XPath "doc-available('%gg')" to resolve to one of the expected results, but got AssertionError: expected [Function] to throw error matching /FODC0005/ but got 'XPST0017: Function doc-available with arity of 1 not registered. No similar functions found.', Error: XPST0017: Function doc-available with arity of 1 not registered. No similar functions found..
-FODT0001-1,AssertionError: expected [Function] to throw error matching /FODT0001/ but got 'XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.'
+FODT0001-1,AssertionError: expected [Function] to throw error matching /FODT0001/ but got 'XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?'
 FODT0001-2,AssertionError: expected [Function] to throw error matching /FODT0001/ but got 'XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.'
 FODT0003-1,AssertionError: expected [Function] to throw error matching /FODT0003/ but got 'XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.'
 FODT0003-2,AssertionError: expected [Function] to throw error matching /FODT0003/ but got 'XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.'
@@ -3685,12 +3686,12 @@ functx-fn-adjust-date-to-timezone-2,Error: XPST0017: Function adjust-date-to-tim
 functx-fn-adjust-date-to-timezone-3,Error: XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
 functx-fn-adjust-date-to-timezone-4,Error: XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
 functx-fn-adjust-date-to-timezone-all,Error: XPST0017: Function adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
-functx-fn-adjust-dateTime-to-timezone-1,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-functx-fn-adjust-dateTime-to-timezone-2,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-functx-fn-adjust-dateTime-to-timezone-3,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-functx-fn-adjust-dateTime-to-timezone-4,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-functx-fn-adjust-dateTime-to-timezone-5,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-functx-fn-adjust-dateTime-to-timezone-all,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+functx-fn-adjust-dateTime-to-timezone-1,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+functx-fn-adjust-dateTime-to-timezone-2,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+functx-fn-adjust-dateTime-to-timezone-3,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+functx-fn-adjust-dateTime-to-timezone-4,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+functx-fn-adjust-dateTime-to-timezone-5,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+functx-fn-adjust-dateTime-to-timezone-all,Error: XPST0017: Function adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 functx-fn-adjust-time-to-timezone-1,Error: XPST0017: Function adjust-time-to-timezone with arity of 2 not registered. No similar functions found.
 functx-fn-adjust-time-to-timezone-2,Error: XPST0017: Function adjust-time-to-timezone with arity of 2 not registered. No similar functions found.
 functx-fn-adjust-time-to-timezone-3,Error: XPST0017: Function adjust-time-to-timezone with arity of 2 not registered. No similar functions found.
@@ -4274,22 +4275,22 @@ fo-test-fn-contains-token-002,Error: XPST0017: Function fn:contains-token with a
 fo-test-fn-contains-token-003,Error: XPST0017: Function fn:contains-token with arity of 2 not registered. Did you mean "Q{http://www.w3.org/2005/xpath-functions/map}contains (map(*), xs:anyAtomicType)", "Q{http://www.w3.org/2005/xpath-functions}contains (xs:string?, xs:string?, xs:string?)" or "Q{http://www.w3.org/2005/xpath-functions}contains (xs:string?, xs:string?)"?
 fo-test-fn-contains-token-004,Error: XPST0017: Function fn:contains-token with arity of 3 not registered. Did you mean "Q{http://www.w3.org/2005/xpath-functions/map}contains (map(*), xs:anyAtomicType)", "Q{http://www.w3.org/2005/xpath-functions}contains (xs:string?, xs:string?, xs:string?)" or "Q{http://www.w3.org/2005/xpath-functions}contains (xs:string?, xs:string?)"?
 fo-test-fn-year-from-dateTime-004,AssertionError: Expected XPath          fn:year-from-dateTime(xs:dateTime("1999-12-31T24:00:00"))        to (deep equally) resolve to 2000: expected false to be true
-fo-test-fn-month-from-dateTime-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fo-test-fn-day-from-dateTime-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fo-test-fn-hours-from-dateTime-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fo-test-fn-month-from-dateTime-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-day-from-dateTime-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-hours-from-dateTime-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 fo-test-fn-timezone-from-dateTime-001,AssertionError: Expected XPath          fn:timezone-from-dateTime(xs:dateTime("1999-05-31T13:20:00-05:00"))        to (deep equally) resolve to xs:dayTimeDuration("-PT5H"): expected false to be true
 fo-test-fn-timezone-from-dateTime-002,AssertionError: Expected XPath          fn:timezone-from-dateTime(xs:dateTime("2000-06-12T13:20:00Z"))        to (deep equally) resolve to xs:dayTimeDuration("PT0S"): expected false to be true
 fo-test-fn-timezone-from-date-001,AssertionError: Expected XPath          fn:timezone-from-date(xs:date("1999-05-31-05:00"))        to (deep equally) resolve to xs:dayTimeDuration("-PT5H"): expected false to be true
 fo-test-fn-timezone-from-date-002,AssertionError: Expected XPath          fn:timezone-from-date(xs:date("2000-06-12Z"))        to (deep equally) resolve to xs:dayTimeDuration("PT0S"): expected false to be true
 fo-test-fn-hours-from-time-004,Error: XPST0017: Function fn:adjust-time-to-timezone with arity of 2 not registered. No similar functions found.
 fo-test-fn-timezone-from-time-001,AssertionError: Expected XPath          fn:timezone-from-time(xs:time("13:20:00-05:00"))        to (deep equally) resolve to xs:dayTimeDuration("-PT5H"): expected false to be true
-fo-test-fn-adjust-dateTime-to-timezone-002,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 1 not registered. No similar functions found.
-fo-test-fn-adjust-dateTime-to-timezone-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fo-test-fn-adjust-dateTime-to-timezone-004,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fo-test-fn-adjust-dateTime-to-timezone-005,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fo-test-fn-adjust-dateTime-to-timezone-006,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fo-test-fn-adjust-dateTime-to-timezone-007,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
-fo-test-fn-adjust-dateTime-to-timezone-008,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. No similar functions found.
+fo-test-fn-adjust-dateTime-to-timezone-002,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 1 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-adjust-dateTime-to-timezone-003,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-adjust-dateTime-to-timezone-004,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-adjust-dateTime-to-timezone-005,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-adjust-dateTime-to-timezone-006,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-adjust-dateTime-to-timezone-007,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
+fo-test-fn-adjust-dateTime-to-timezone-008,Error: XPST0017: Function fn:adjust-dateTime-to-timezone with arity of 2 not registered. Did you mean "Q{generated_namespace_uri_test}custom-dateTime-function ()"?
 fo-test-fn-adjust-date-to-timezone-003,Error: XPST0017: Function fn:adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
 fo-test-fn-adjust-date-to-timezone-004,Error: XPST0017: Function fn:adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
 fo-test-fn-adjust-date-to-timezone-005,Error: XPST0017: Function fn:adjust-date-to-timezone with arity of 2 not registered. No similar functions found.
