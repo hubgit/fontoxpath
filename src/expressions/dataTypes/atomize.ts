@@ -1,8 +1,10 @@
+import ArrayValue from './ArrayValue';
 import createAtomicValue from './createAtomicValue';
 import isSubtypeOf from './isSubtypeOf';
 
 import ExecutionParameters from '../ExecutionParameters';
 import AtomicValue from './AtomicValue';
+import sequenceFactory from './sequenceFactory';
 import Value from './Value';
 
 const TEXT_NODE = 3;
@@ -72,9 +74,30 @@ export default function atomize(
 		);
 	}
 
-	// (function || map) && !array
-	if (isSubtypeOf(value.type, 'function(*)') && !isSubtypeOf(value.type, 'array(*)')) {
+	// array
+	if (isSubtypeOf(value.type, 'array(*)')) {
+		const arrayValue = value.value as ArrayValue;
+
+		// recursively atomize the members of the array
+		const atomizedArray: any[] = (arrayValue.members || []).map(child =>
+			child()
+				.getAllValues()
+				.map(childValue => atomize(childValue, executionParameters))
+		);
+
+		// flatten the array
+		const flattenedArray = atomizedArray.flat(Infinity);
+
+		// turn the array into a sequence
+		const sequence = sequenceFactory.create(flattenedArray);
+
+		return createAtomicValue(sequence, 'xs:untypedAtomic');
+	}
+
+	// (function || map)
+	if (isSubtypeOf(value.type, 'function(*)')) {
 		throw new Error(`FOTY0013: Atomization is not supported for ${value.type}.`);
 	}
+
 	throw new Error(`Atomizing ${value.type} is not implemented.`);
 }
